@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "./Home.css";
-import ExploreMenu from "../../components/ExploreMenu/ExploreMenu";
-import FoodDisplay from "../../components/FoodDisplay/FoodDisplay";
+import Hero from "../../components/HeroSection/Hero";
+import FeatureSection from "../../components/FeatureSection/FeatureSection";
 import AppDownload from "../../components/AppDownload/AppDownload";
 
 const Home = () => {
@@ -9,8 +9,8 @@ const Home = () => {
 
   return (
     <div>
-      <ExploreMenu category={category} setCategory={setCategory} />
-      <FoodDisplay category={category} />
+      <Hero />
+      <FeatureSection />
       <AppDownload />
     </div>
   );

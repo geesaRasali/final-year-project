@@ -4,12 +4,14 @@ import Cart from "./pages/Cart/Cart";
 import PlaceOrder from "./pages/PlaceOrder/PlaceOrder";
 import Verify from "./pages/Verify/Verify";
 import MyOrders from "./pages/MyOrders/myOrders";
+import Menu from "./pages/Menu/Menu";
 import Navbar from "./components/Navbar/Navbar";
 import { useState } from "react";
 import LoginPopup from "./components/LoginPopup/LoginPopup";
 import Footer from "./components/Footer/Footer";
+import OurService from "./components/OurService/OurService";
+import About from "./components/About/About";
 import Chatbot from "./components/Chatbot/Chatbot";
-
 const App = () => {
 
   const [showLogin, setShowLogin] = useState(false)
@@ -21,11 +23,13 @@ const App = () => {
       <div className="app">
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/menu" element={<Menu />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/order" element={<PlaceOrder />} />
           <Route path="/myorders" element={<MyOrders />} />
+          <Route path="/services" element={<OurService />} />
+          <Route path="/about" element={<About />} />
           <Route path="/verify" element={<Verify />} />
-         
         </Routes>
       </div>
       <Chatbot />

@@ -1,38 +1,56 @@
-import React, { useContext } from 'react'
-import { assets } from '../../assets/assets'
-import { StoreContext } from '../../context/StoreContext'
-import './FoodItem.css'
+import React, { useContext } from "react";
+import { assets } from "../../assets/assets";
+import { StoreContext } from "../../context/StoreContext";
 
-const FoodItem = ({id,name,price,description,image}) => {
-    
-    const {cartItems,addToCart,removeFromCart,url}= useContext(StoreContext);
-    
-    // Determine if image is a static asset (imported) or backend URL (string)
-    const imageUrl = typeof image === 'string' ? url + "/images/" + image : image;
-    
+const FoodItem = ({ id, name, price, description, image }) => {
+  const { cartItems, addToCart, removeFromCart, url } = useContext(StoreContext);
+
+  const imageUrl =
+    typeof image === "string" && !image.startsWith("data:") && !image.startsWith("http")
+      ? `${url}/images/${image}`
+      : image;
+
   return (
-    <div className='food-item'>
-        <div className='food-item-img-container'>
-           <img className="food-item-image" src={imageUrl} alt=""  />
-           {!cartItems[id]
-               ?<img className='add' onClick={()=>addToCart(id)} src={assets.add_icon_white} alt="" />
-               :<div className="food-item-counter">
-                   <img onClick={()=>removeFromCart(id)} src={assets.remove_icon_red} alt="" />
-                   <p>{cartItems[id]}</p>
-                   <img onClick={()=>addToCart(id)} src={assets.add_icon_green} alt="" />
-               </div>
-           }
-        </div>
-        <div className='food-item-info'>
-            <div className='food-item-name-rating'>
-               <p>{name}</p>
-               <img src={assets.rating_starts} alt=''  />
-           </div>
-           <p className="food-item-desc">{description}</p>
-           <p className='food-item-price'>${price}</p>
-        </div>
-    </div>
-  )
-}
+    <div className="w-full overflow-hidden rounded-3xl border border-[#f0e5db] bg-white shadow-[0_8px_22px_rgba(15,23,42,0.08)] transition duration-300 ease-out hover:-translate-y-1 hover:cursor-pointer hover:shadow-[0_18px_34px_rgba(249,115,22,0.17)]">
+      <div className="relative m-2 aspect-[4/3] overflow-hidden rounded-[18px]">
+        <img className="block h-full w-full object-cover" src={imageUrl} alt={name} />
 
-export default FoodItem
+        {!cartItems[id] ? (
+          <img
+            className="absolute bottom-4 right-4 w-[38px] cursor-pointer rounded-full shadow-[0_8px_18px_rgba(15,23,42,0.2)]"
+            onClick={() => addToCart(id)}
+            src={assets.add_icon_white}
+            alt="Add"
+          />
+        ) : (
+          <div className="absolute bottom-4 right-4 flex items-center gap-2.5 rounded-[50px] bg-white p-[7px] shadow-[0_8px_20px_rgba(15,23,42,0.16)]">
+            <img
+              className="w-[30px] cursor-pointer"
+              onClick={() => removeFromCart(id)}
+              src={assets.remove_icon_red}
+              alt="Remove"
+            />
+            <p className="m-0 font-medium">{cartItems[id]}</p>
+            <img
+              className="w-[30px] cursor-pointer"
+              onClick={() => addToCart(id)}
+              src={assets.add_icon_green}
+              alt="Add"
+            />
+          </div>
+        )}
+      </div>
+
+      <div className="px-4 pb-4 pt-3">
+        <div className="mb-2 flex items-start justify-between gap-2.5">
+          <p className="m-0 text-[22px] leading-[1.1] font-semibold text-slate-900">{name}</p>
+          <img className="mt-1 w-[68px]" src={assets.rating_starts} alt="Rating" />
+        </div>
+        <p className="m-0 line-clamp-2 text-[13px] leading-[1.5] text-slate-500">{description}</p>
+        <p className="mt-2.5 text-4xl font-bold text-orange-500">${price}</p>
+      </div>
+    </div>
+  );
+};
+
+export default FoodItem;

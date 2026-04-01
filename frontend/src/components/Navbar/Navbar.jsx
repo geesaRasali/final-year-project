@@ -49,7 +49,7 @@ const Navbar = ({ onUserIconClick, setShowLogin }) => {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`relative rounded-full px-4 py-2 text-lg font-bold tracking-wide transition-all duration-300 ${
+                className={`relative rounded-full px-4 py-2 text-13px font-bold tracking-wide transition-all duration-300 ${
                   pathname === item.path
                     ? "text-white bg-white/15 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.25)]"
                     : "text-white hover:text-white hover:bg-white/10"

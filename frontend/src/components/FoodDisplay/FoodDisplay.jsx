@@ -8,7 +8,12 @@ const FoodDisplay = ({ category }) => {
 
   return (
     <div className="food-display" id="food-display">
-      <h2>Top dishes near you</h2>
+      <h2>
+        Top dishes <span>near you</span>
+      </h2>
+      <p className="food-display-subtitle">
+        Fresh favorites selected to match your cravings.
+      </p>
       <div className="food-display-list">
         {food_list && food_list.length > 0 ? (
           food_list.map((item, index) => {
