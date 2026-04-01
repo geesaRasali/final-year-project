@@ -1,25 +1,16 @@
-"use client";
-
 import { useState } from "react";
-import Image from "next/image";
 import { assets, food_list } from "../assets/assets";
 import ExploreMenu from "../components/ExploreMenu/ExploreMenu";
-import { Playfair_Display } from "next/font/google";
 
-const playfair = Playfair_Display({
-  subsets: ["latin"],
-  weight: ["500", "600", "700"],
-});
+const headingFontClass = "font-serif";
 
 const FoodItem = ({ item, quantity, onAdd, onRemove }) => {
   return (
     <article className="group overflow-hidden rounded-[28px] border border-orange-100/80 bg-white shadow-[0_10px_25px_rgba(15,23,42,0.06)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_40px_rgba(249,115,22,0.15)]">
       <div className="relative m-2 aspect-[4/3] overflow-hidden rounded-[20px]">
-        <Image
+        <img
           src={item.image}
           alt={item.name}
-          width={380}
-          height={220}
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
 
@@ -58,17 +49,15 @@ const FoodItem = ({ item, quantity, onAdd, onRemove }) => {
       <div className="p-4">
         <div className="mb-2 flex items-start justify-between gap-2">
           <h3
-            className={`${playfair.className} line-clamp-1 text-[1.6rem] font-semibold text-slate-900`}
+            className={`${headingFontClass} line-clamp-1 text-[1.6rem] font-semibold text-slate-900`}
           >
             {item.name}
           </h3>
 
-          <Image
+          <img
             src={assets.rating_starts}
             alt="Rating"
-            width={70}
-            height={14}
-            className="mt-1 shrink-0"
+            className="mt-1 h-[14px] w-[70px] shrink-0"
           />
         </div>
 
@@ -78,7 +67,7 @@ const FoodItem = ({ item, quantity, onAdd, onRemove }) => {
 
         <div className="mt-3 flex items-center justify-between">
           <p
-            className={`${playfair.className} text-[1.6rem] font-bold text-orange-500`}
+            className={`${headingFontClass} text-[1.6rem] font-bold text-orange-500`}
           >
             ${item.price}
           </p>

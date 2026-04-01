@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import Home from "./pages/Home/Home";
 import Cart from "./pages/Cart/Cart";
 import PlaceOrder from "./pages/PlaceOrder/PlaceOrder";
@@ -6,20 +6,28 @@ import Verify from "./pages/Verify/Verify";
 import MyOrders from "./pages/MyOrders/myOrders";
 import Menu from "./pages/Menu/Menu";
 import Navbar from "./components/Navbar/Navbar";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import LoginPopup from "./components/LoginPopup/LoginPopup";
 import Footer from "./components/Footer/Footer";
 import OurService from "./components/OurService/OurService";
 import About from "./components/About/About";
 import Chatbot from "./components/Chatbot/Chatbot";
+import Contact from "./components/Contact/Contact";
+import Context from "./pages/Context/Context";
 const App = () => {
 
-  const [showLogin, setShowLogin] = useState(false)
+  const [showLogin, setShowLogin] = useState(false);
+  const { pathname } = useLocation();
+  const hideFooter = pathname === "/contact";
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, [pathname]);
   
   return (
     <>
-      {showLogin ? <LoginPopup setShowLogin={setShowLogin} /> : <></>}
-        <Navbar setShowLogin={setShowLogin} />
+      <LoginPopup isOpen={showLogin} onClose={() => setShowLogin(false)} />
+      <Navbar setShowLogin={setShowLogin} />
       <div className="app">
         <Routes>
           <Route path="/" element={<Home />} />
@@ -29,14 +37,16 @@ const App = () => {
           <Route path="/myorders" element={<MyOrders />} />
           <Route path="/services" element={<OurService />} />
           <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/context" element={<Context />} />
           <Route path="/verify" element={<Verify />} />
         </Routes>
       </div>
       <Chatbot />
-      <Footer />
+      {!hideFooter && <Footer />}
     </>
   );
-}
+};
 
 export default App;
         
