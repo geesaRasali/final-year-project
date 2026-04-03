@@ -4,11 +4,12 @@ import { StoreContext } from '../../context/StoreContext'
 import axios from 'axios'
 
 const LoginPopup = ({ setShowLogin, isOpen, onClose }) => {
-  const { url, setToken } = useContext(StoreContext)
+  const { url, setToken, setUser } = useContext(StoreContext)
   const [currState, SetCurrState] = useState('Sign Up')
   const [data, setData] = useState({
     name: '',
     email: '',
+    username: '',
     password: ''
   })
 
@@ -41,12 +42,27 @@ const LoginPopup = ({ setShowLogin, isOpen, onClose }) => {
           newUrl += "/api/user/register"
         }
         
+        const payload = currState === "Login"
+          ? { username: data.username, password: data.password }
+          : {
+              name: data.name,
+              email: data.email,
+              username: data.username,
+              password: data.password,
+            };
+
         try {
-          const response = await axios.post(newUrl, data);
+          const response = await axios.post(newUrl, payload);
           
           if (response.data.success) {
             setToken(response.data.token);
             localStorage.setItem("token", response.data.token);
+
+            if (response.data.user) {
+              setUser(response.data.user);
+              localStorage.setItem("user", JSON.stringify(response.data.user));
+            }
+
             closePopup();
           } else {
             alert(response.data.message);
@@ -140,15 +156,38 @@ const LoginPopup = ({ setShowLogin, isOpen, onClose }) => {
                   className='w-full rounded-xl border border-zinc-300 px-5 py-3 text-base text-zinc-800 outline-none transition focus:border-orange-500 focus:ring-2 focus:ring-orange-200'
                 />
               )}
-              <input
-                name='email'
-                onChange={onChangeHandler}
-                value={data.email}
-                type='email'
-                placeholder={currState === 'Login' ? 'Enter your username' : 'Enter your email'}
-                required
-                className='w-full rounded-xl border border-zinc-300 px-5 py-3 text-base text-zinc-800 outline-none transition focus:border-orange-500 focus:ring-2 focus:ring-orange-200'
-              />
+              {currState === 'Login' ? (
+                <input
+                  name='username'
+                  onChange={onChangeHandler}
+                  value={data.username}
+                  type='text'
+                  placeholder='Enter username or email'
+                  required
+                  className='w-full rounded-xl border border-zinc-300 px-5 py-3 text-base text-zinc-800 outline-none transition focus:border-orange-500 focus:ring-2 focus:ring-orange-200'
+                />
+              ) : (
+                <>
+                  <input
+                    name='email'
+                    onChange={onChangeHandler}
+                    value={data.email}
+                    type='email'
+                    placeholder='Enter your email'
+                    required
+                    className='w-full rounded-xl border border-zinc-300 px-5 py-3 text-base text-zinc-800 outline-none transition focus:border-orange-500 focus:ring-2 focus:ring-orange-200'
+                  />
+                  <input
+                    name='username'
+                    onChange={onChangeHandler}
+                    value={data.username}
+                    type='text'
+                    placeholder='Choose a username'
+                    required
+                    className='w-full rounded-xl border border-zinc-300 px-5 py-3 text-base text-zinc-800 outline-none transition focus:border-orange-500 focus:ring-2 focus:ring-orange-200'
+                  />
+                </>
+              )}
               <input
                 name='password'
                 type='password'

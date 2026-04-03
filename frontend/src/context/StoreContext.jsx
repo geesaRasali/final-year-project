@@ -7,6 +7,7 @@ export const StoreContext = createContext(null);
 const StoreContextProvider = (props) => {
   const [cartItems, setCartItems] = useState({});
   const [token, setToken] = useState("");
+  const [user, setUser] = useState(null);
   const [foodList, setFoodList] = useState([]); // Start with empty array
   const url = "http://localhost:4000";
 
@@ -15,6 +16,7 @@ const StoreContextProvider = (props) => {
       try {
         const savedToken = localStorage.getItem("token");
         const savedCart = localStorage.getItem("cartItems");
+        const savedUser = localStorage.getItem("user");
 
         if (savedToken) {
           setToken(savedToken);
@@ -22,6 +24,10 @@ const StoreContextProvider = (props) => {
 
         if (savedCart) {
           setCartItems(JSON.parse(savedCart));
+        }
+
+        if (savedUser) {
+          setUser(JSON.parse(savedUser));
         }
       } catch (error) {
         console.error("Error loading data from localStorage:", error);
@@ -110,6 +116,21 @@ const StoreContextProvider = (props) => {
     }
   };
 
+  const loadUserProfile = async (authToken) => {
+    try {
+      const response = await axios.get(url + "/api/user/profile", {
+        headers: { token: authToken },
+      });
+
+      if (response.data.success && response.data.user) {
+        setUser(response.data.user);
+        localStorage.setItem("user", JSON.stringify(response.data.user));
+      }
+    } catch (error) {
+      console.error("Error loading user profile:", error);
+    }
+  };
+
   const loadCartData = async (token) => {
     try {
       const response = await axios.post(
@@ -125,9 +146,15 @@ const StoreContextProvider = (props) => {
   useEffect(() => {
     async function loadData() {
       await fetchFoodList();
-      if (localStorage.getItem("token")) {
-        setToken(localStorage.getItem("token"));
-        await loadCartData(localStorage.getItem("token"));
+      const savedToken = localStorage.getItem("token");
+      if (savedToken) {
+        setToken(savedToken);
+        await loadCartData(savedToken);
+
+        const savedUser = localStorage.getItem("user");
+        if (!savedUser) {
+          await loadUserProfile(savedToken);
+        }
       }
     }
     loadData();
@@ -143,6 +170,8 @@ const StoreContextProvider = (props) => {
     url,
     token,
     setToken,
+    user,
+    setUser,
   };
 
   return (

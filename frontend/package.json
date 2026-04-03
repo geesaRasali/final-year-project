@@ -11,11 +11,13 @@
   },
   "dependencies": {
     "@ai-sdk/react": "^3.0.136",
+    "@react-oauth/google": "^0.13.4",
     "@stripe/react-stripe-js": "^4.0.2",
     "@stripe/stripe-js": "^7.9.0",
     "@tailwindcss/vite": "^4.2.2",
     "ai": "^6.0.134",
     "axios": "^1.11.0",
+    "firebase": "^12.11.0",
     "framer-motion": "^12.38.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
