@@ -20,10 +20,12 @@ const StoreContextProvider = (props) => {
 
         if (savedToken) {
           setToken(savedToken);
-        }
-
-        if (savedCart) {
-          setCartItems(JSON.parse(savedCart));
+          if (savedCart) {
+            setCartItems(JSON.parse(savedCart));
+          }
+        } else {
+          setCartItems({});
+          localStorage.removeItem("cartItems");
         }
 
         if (savedUser) {
@@ -159,6 +161,13 @@ const StoreContextProvider = (props) => {
     }
     loadData();
   }, []);
+
+  useEffect(() => {
+    if (!token) {
+      setCartItems({});
+      localStorage.removeItem("cartItems");
+    }
+  }, [token]);
 
   const contextValue = {
     food_list: foodList,

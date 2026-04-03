@@ -9,7 +9,7 @@ const Navbar = ({ onUserIconClick, setShowLogin }) => {
   const [cartCount] = useState(0);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const userMenuRef = useRef(null);
-  const { token, user, setToken, setUser } = useContext(StoreContext);
+  const { token, user, setToken, setUser, setCartItems } = useContext(StoreContext);
 
   const handleUserIconClick = () => {
     if (typeof onUserIconClick === "function") {
@@ -25,8 +25,10 @@ const Navbar = ({ onUserIconClick, setShowLogin }) => {
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    localStorage.removeItem("cartItems");
     setToken("");
     setUser(null);
+    setCartItems({});
     setIsUserMenuOpen(false);
   };
 
