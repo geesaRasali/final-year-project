@@ -1,14 +1,11 @@
-import React, { useState } from "react";
-import "./Home.css";
+import React from "react";
 import Hero from "../../components/HeroSection/Hero";
 import FeatureSection from "../../components/FeatureSection/FeatureSection";
 import AppDownload from "../../components/AppDownload/AppDownload";
 
 const Home = () => {
-  const [category, setCategory] = useState("All");
-
   return (
-    <div>
+    <div className="w-full overflow-hidden">
       <Hero />
       <FeatureSection />
       <AppDownload />

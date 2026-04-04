@@ -1,8 +1,9 @@
 import { Routes, Route, useLocation } from "react-router-dom";
 import Home from "./pages/Home/Home";
-import Cart from "./pages/Cart/Cart";
+import Cart from "./Cart/Cart";
 import PlaceOrder from "./pages/PlaceOrder/PlaceOrder";
 import Verify from "./pages/Verify/Verify";
+import Success from "./pages/Success/Success";
 import MyOrders from "./pages/MyOrders/myOrders";
 import Menu from "./pages/Menu/Menu";
 import Navbar from "./components/Navbar/Navbar";
@@ -40,6 +41,7 @@ const App = () => {
           <Route path="/contact" element={<Contact />} />
           <Route path="/context" element={<Context />} />
           <Route path="/verify" element={<Verify />} />
+          <Route path="/success" element={<Success />} />
         </Routes>
       </div>
       <Chatbot />

@@ -6,7 +6,7 @@ import jwt from "jsonwebtoken";
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 const placeOrder = async (req, res) => {
-  const frontend_url = "http://localhost:5174";
+  const frontend_url = process.env.FRONTEND_URL || "http://localhost:5173";
 
   try {
     console.log("Order request received:", req.body);
@@ -126,4 +126,26 @@ const updateStatus = async (req, res) => {
   }
 };
 
-export { placeOrder, verifyOrder, userOrders, listOrders, updateStatus };
+const getSingleOrder = async (req, res) => {
+  try {
+    const { orderId } = req.body;
+    const userId = req.body.userId;
+
+    if (!orderId) {
+      return res.json({ success: false, message: "Order ID is required" });
+    }
+
+    const order = await orderModel.findOne({ _id: orderId, userId });
+
+    if (!order) {
+      return res.json({ success: false, message: "Order not found" });
+    }
+
+    return res.json({ success: true, order });
+  } catch (error) {
+    console.log(error);
+    return res.json({ success: false, message: "Error" });
+  }
+};
+
+export { placeOrder, verifyOrder, userOrders, listOrders, updateStatus, getSingleOrder };

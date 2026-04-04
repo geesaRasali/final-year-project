@@ -5,13 +5,18 @@ import axios from 'axios'
 import "./Verify.css"
 
 const Verify = () => {
-    const [searchParams, setSearchParams] = useSearchParams();
+    const [searchParams] = useSearchParams();
     const success = searchParams.get("success")
     const orderId = searchParams.get("orderId")
-    const { url } = useContext(StoreContext);
+    const { url, setCartItems } = useContext(StoreContext);
     const navigate = useNavigate();
 
     const verifyPayment = async () => {
+        if (!orderId || success === null) {
+            navigate("/");
+            return;
+        }
+
         try {
             const response = await axios.post(url + "/api/order/verify", {
                 success,
@@ -19,7 +24,9 @@ const Verify = () => {
             });
             
             if (response.data.success) {
-                navigate("/myorders");
+                setCartItems({});
+                localStorage.removeItem("cartItems");
+                navigate(`/success?orderId=${orderId}`);
             } else {
                 navigate("/");
             }
@@ -31,7 +38,7 @@ const Verify = () => {
 
     useEffect(() => {
         verifyPayment();
-    }, [])
+    }, [orderId, success])
 
     return (
         <div className='verify'>
