@@ -2,7 +2,6 @@ import React, { useContext, useEffect } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { StoreContext } from '../../context/StoreContext'
 import axios from 'axios'
-import "./Verify.css"
 
 const Verify = () => {
     const [searchParams] = useSearchParams();
@@ -41,8 +40,8 @@ const Verify = () => {
     }, [orderId, success])
 
     return (
-        <div className='verify'>
-            <div className="spinner"></div>
+        <div className="grid min-h-[60vh] place-items-center">
+            <div className="h-[100px] w-[100px] rounded-full border-[5px] border-[#bdbdbd] border-t-[tomato] animate-spin"></div>
         </div>
     )
 }

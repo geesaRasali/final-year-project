@@ -26,7 +26,7 @@ const App = () => {
   }, [pathname]);
   
   return (
-    <>
+    <div className="min-h-screen bg-[var(--app-bg)] text-[var(--app-fg)] transition-colors duration-300">
       <LoginPopup isOpen={showLogin} onClose={() => setShowLogin(false)} />
       <Navbar setShowLogin={setShowLogin} />
       <div className="app">
@@ -46,7 +46,7 @@ const App = () => {
       </div>
       <Chatbot />
       {!hideFooter && <Footer />}
-    </>
+    </div>
   );
 };
 
