@@ -38,3 +38,42 @@
 .navbar .profile::before {
   content: "A";
 }
+
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.admin-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.admin-role {
+  font-size: 11px;
+  font-weight: 700;
+  color: #6b7280;
+  text-transform: uppercase;
+}
+
+.admin-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.logout-btn {
+  border: 1px solid #fdba74;
+  border-radius: 8px;
+  padding: 8px 12px;
+  background: #fff7ed;
+  color: #c2410c;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.logout-btn:hover {
+  background: #ffedd5;
+}

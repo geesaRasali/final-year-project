@@ -29,7 +29,8 @@ const StoreContextProvider = (props) => {
         }
 
         if (savedUser) {
-          setUser(JSON.parse(savedUser));
+          const parsedUser = JSON.parse(savedUser);
+          setUser({ ...parsedUser, role: parsedUser?.role || "customer" });
         }
       } catch (error) {
         console.error("Error loading data from localStorage:", error);
@@ -125,8 +126,12 @@ const StoreContextProvider = (props) => {
       });
 
       if (response.data.success && response.data.user) {
-        setUser(response.data.user);
-        localStorage.setItem("user", JSON.stringify(response.data.user));
+        const normalizedUser = {
+          ...response.data.user,
+          role: response.data.user.role || "customer",
+        };
+        setUser(normalizedUser);
+        localStorage.setItem("user", JSON.stringify(normalizedUser));
       }
     } catch (error) {
       console.error("Error loading user profile:", error);

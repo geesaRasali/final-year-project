@@ -7,7 +7,7 @@
 	color-scheme: light;
 	--app-bg: #fff8f1;
 	--app-fg: #1f2937;
-	--background: oklch(1 0 0);
+	--background: #fff8f1;
 	--foreground: oklch(0.145 0 0);
 	--card: oklch(1 0 0);
 	--card-foreground: oklch(0.145 0 0);
@@ -41,10 +41,45 @@
 	--sidebar-ring: oklch(0.708 0 0);
 }
 
+html,
+body,
+#root {
+	margin: 0;
+	padding: 0;
+	min-height: 100%;
+	width: 100%;
+	background: var(--app-bg);
+	overflow-x: hidden;
+}
+
 body {
 	background: var(--app-bg);
 	color: var(--app-fg);
 	transition: background-color 200ms ease, color 200ms ease;
+}
+
+/* Remove white scrollbar track and keep theme-consistent colors */
+* {
+	scrollbar-width: thin;
+	scrollbar-color: #6b7280 #f6ad72;
+}
+
+*::-webkit-scrollbar {
+	width: 12px;
+}
+
+*::-webkit-scrollbar-track {
+	background: #f6ad72;
+}
+
+*::-webkit-scrollbar-thumb {
+	background: #6b7280;
+	border-radius: 999px;
+	border: 2px solid #f6ad72;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+	background: #4b5563;
 }
 
 @theme inline {

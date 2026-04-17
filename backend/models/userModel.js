@@ -3,6 +3,12 @@ import mongoose from "mongoose";
 const userSchema = new mongoose.Schema({
     name: { type: String, required: true },
 
+    role: {
+        type: String,
+        enum: ["customer", "admin", "staff"],
+        default: "customer"
+    },
+
     email: {
         type: String,
         required: true,
@@ -16,6 +22,7 @@ const userSchema = new mongoose.Schema({
     },
 
     password: { type: String, required: true },
+    profileImage: { type: String, default: '' },
     cartData: { type: Object, default: {} }
 },{ minimize: false })
 

@@ -15,6 +15,7 @@ import About from "./components/About/About";
 import Chatbot from "./components/Chatbot/Chatbot";
 import Contact from "./components/Contact/Contact";
 import Context from "./pages/Context/Context";
+import EditProfile from "./pages/EditProfile/EditProfile";
 const App = () => {
 
   const [showLogin, setShowLogin] = useState(false);
@@ -26,7 +27,7 @@ const App = () => {
   }, [pathname]);
   
   return (
-    <div className="min-h-screen bg-[var(--app-bg)] text-[var(--app-fg)] transition-colors duration-300">
+    <div className="min-h-screen bg-(--app-bg) text-(--app-fg) transition-colors duration-300">
       <LoginPopup isOpen={showLogin} onClose={() => setShowLogin(false)} />
       <Navbar setShowLogin={setShowLogin} />
       <div className="app">
@@ -40,6 +41,7 @@ const App = () => {
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/context" element={<Context />} />
+          <Route path="/edit-profile" element={<EditProfile />} />
           <Route path="/verify" element={<Verify />} />
           <Route path="/success" element={<Success />} />
         </Routes>

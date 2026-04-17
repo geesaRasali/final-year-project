@@ -1,0 +1,144 @@
+.dashboard {
+  width: 75%;
+  margin: 40px auto;
+  color: #454545;
+}
+
+.dashboard h2 {
+  margin-bottom: 20px;
+  color: #2b2e32;
+}
+
+.dashboard-cards {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(140px, 1fr));
+  gap: 15px;
+  margin-bottom: 28px;
+}
+
+.dashboard-card {
+  border: 1px solid #ffd3c8;
+  background: linear-gradient(135deg, #fff8f5 0%, #ffffff 100%);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.dashboard-card p {
+  font-size: 13px;
+  color: #7a7a7a;
+  margin-bottom: 8px;
+}
+
+.dashboard-card h3 {
+  font-size: 24px;
+  color: #ea580c;
+}
+
+.week-chart {
+  border: 1px solid #e8e8e8;
+  border-radius: 14px;
+  padding: 18px;
+  background: #fff;
+}
+
+.week-chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.week-chart-header h3 {
+  font-size: 18px;
+  color: #2b2e32;
+}
+
+.refresh-btn {
+  border: 1px solid #ffb199;
+  background-color: #fff2ec;
+  color: #ea580c;
+  padding: 7px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.refresh-btn:hover {
+  background-color: #ffe6db;
+}
+
+.chart-message {
+  color: #7a7a7a;
+  font-size: 14px;
+}
+
+.chart-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(70px, 1fr));
+  gap: 12px;
+  align-items: end;
+  min-height: 300px;
+}
+
+.chart-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.chart-value {
+  font-size: 12px;
+  color: #6d6d6d;
+}
+
+.bar-track {
+  width: 100%;
+  max-width: 58px;
+  height: 170px;
+  border-radius: 10px;
+  background: #fff2ec;
+  border: 1px solid #ffd7ca;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+}
+
+.bar-fill {
+  width: 100%;
+  background: linear-gradient(180deg, #fb923c 0%, #ea580c 100%);
+  border-radius: 9px;
+  min-height: 2px;
+}
+
+.chart-day {
+  font-weight: 700;
+  color: #374151;
+}
+
+.chart-orders {
+  font-size: 11px;
+  color: #7a7a7a;
+}
+
+@media (max-width: 1100px) {
+  .dashboard {
+    width: 90%;
+  }
+
+  .dashboard-cards {
+    grid-template-columns: repeat(2, minmax(140px, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  .chart-grid {
+    grid-template-columns: repeat(7, minmax(50px, 1fr));
+    gap: 8px;
+  }
+
+  .bar-track {
+    max-width: 42px;
+    height: 140px;
+  }
+}

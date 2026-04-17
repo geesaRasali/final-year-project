@@ -89,7 +89,7 @@ const verifyOrder = async (req, res) => {
 const userOrders = async (req,res) => {
    try {  
       // Get userId from req.body (set by authMiddleware)
-      const userId = req.body.userId;
+  const userId = req.userId || req.body.userId;
       
       if (!userId) {
         return res.json({success: false, message: "User ID not found"});
@@ -129,7 +129,7 @@ const updateStatus = async (req, res) => {
 const getSingleOrder = async (req, res) => {
   try {
     const { orderId } = req.body;
-    const userId = req.body.userId;
+    const userId = req.userId || req.body.userId;
 
     if (!orderId) {
       return res.json({ success: false, message: "Order ID is required" });

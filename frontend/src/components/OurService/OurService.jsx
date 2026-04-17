@@ -68,8 +68,8 @@ const stats = [
 
 const KeyFeatures = () => {
   return (
-    <section className="bg-white">
-      <div className="bg-orange-50 py-20">
+    <section className="bg-linear-to-b from-[#fff4e8] via-[#ffe8d1] to-[#ffd2a6]">
+      <div className="bg-linear-to-r from-[#ffedd5]/90 via-[#fed7aa]/85 to-[#fdba74]/80 py-20">
         <div className="mx-auto max-w-7xl px-6 text-center">
           <h2 className="text-4xl font-extrabold text-black sm:text-5xl">
             Designed to Elevate Your Online Food Ordering Experience
@@ -92,7 +92,7 @@ const KeyFeatures = () => {
           {features.map((item, index) => (
             <div
               key={index}
-              className="group rounded-[28px] border border-orange-100 bg-white p-8 shadow-[0_10px_30px_rgba(15,23,42,0.06)] transition duration-300 hover:-translate-y-2 hover:shadow-[0_18px_40px_rgba(249,115,22,0.15)]"
+              className="group rounded-[28px] border border-orange-200/90 bg-[#fff9f2] p-8 shadow-[0_10px_30px_rgba(15,23,42,0.06)] transition duration-300 hover:-translate-y-2 hover:border-orange-300 hover:shadow-[0_18px_40px_rgba(249,115,22,0.15)]"
             >
               <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-orange-50 text-2xl text-orange-500 transition duration-300 group-hover:bg-orange-500 group-hover:text-white">
                 {item.icon}
@@ -108,7 +108,7 @@ const KeyFeatures = () => {
         </div>
       </div>
 
-      <div className="bg-slate-100 py-20">
+      <div className="bg-[#ffe7cf] py-20">
         <div className="mx-auto max-w-7xl px-6">
           <h3 className="text-center text-2xl font-extrabold text-slate-900 sm:text-5xl">
             Why Choose Us
@@ -118,7 +118,7 @@ const KeyFeatures = () => {
             {stats.map((item) => (
               <div
                 key={item.label}
-                className="rounded-2xl border border-slate-200 bg-white px-8 py-10 text-center shadow-sm"
+                className="rounded-2xl border border-orange-200 bg-[#fffaf4] px-8 py-10 text-center shadow-sm"
               >
                 <p className="text-5xl font-extrabold text-orange-500">{item.value}</p>
                 <p className="mt-4 text-xl font-semibold text-slate-800">{item.label}</p>
