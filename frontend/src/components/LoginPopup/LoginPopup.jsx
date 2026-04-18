@@ -10,7 +10,6 @@ const LoginPopup = ({ setShowLogin, isOpen, onClose }) => {
   const { url, setToken, setUser } = useContext(StoreContext)
   const hasGoogleClientId = Boolean((import.meta.env.VITE_GOOGLE_CLIENT_ID || '').trim())
   const [currState, SetCurrState] = useState('Sign Up')
-  const [signupType, setSignupType] = useState(null)
   const [googleError, setGoogleError] = useState('')
   const [data, setData] = useState({
     name: '',
@@ -31,6 +30,9 @@ const LoginPopup = ({ setShowLogin, isOpen, onClose }) => {
         if (!isOpen) {
           return
         }
+
+        SetCurrState('Login')
+        setGoogleError('')
 
         const previousBodyOverflow = document.body.style.overflow
         const previousHtmlOverflow = document.documentElement.style.overflow
@@ -54,11 +56,9 @@ const LoginPopup = ({ setShowLogin, isOpen, onClose }) => {
         setData(data=>({...data,[name]:value}))
       }
 
-      const showAccountChoice = !signupType
-      const isPrivilegedLogin = currState === 'Login' && (signupType === 'admin' || signupType === 'staff')
-      const isCustomerLogin = currState === 'Login' && signupType === 'customer'
-      const isCustomerFlow = signupType === 'customer'
-      const submitButtonClasses = 'bg-linear-to-r from-orange-500 to-orange-400 hover:from-orange-600 hover:to-orange-500 hover:shadow-[0_12px_24px_rgba(234,88,12,0.35)]'
+      const isCustomerFlow = true
+      const submitButtonClasses = 'bg-linear-to-r from-orange-500 via-orange-500 to-amber-500 hover:from-orange-600 hover:via-orange-500 hover:to-amber-600 hover:shadow-[0_14px_28px_rgba(234,88,12,0.38)]'
+      const fieldInputClasses = 'w-full rounded-2xl border border-zinc-200 bg-white px-5 py-3.5 text-base text-zinc-800 shadow-[0_8px_24px_rgba(0,0,0,0.04)] outline-none transition placeholder:text-zinc-400 focus:border-orange-400 focus:ring-4 focus:ring-orange-100'
 
       const applyAuthSuccess = (responseUser, token) => {
         const normalizedUser = {
@@ -154,16 +154,6 @@ const LoginPopup = ({ setShowLogin, isOpen, onClose }) => {
               role: response.data.user.role || 'customer',
             };
 
-            if (currState === "Login" && signupType === "admin" && normalizedUser.role !== "admin") {
-              alert("This account is not an admin account.");
-              return;
-            }
-
-            if (currState === "Login" && signupType === "staff" && normalizedUser.role !== "staff") {
-              alert("This account is not a staff account.");
-              return;
-            }
-
             applyAuthSuccess(normalizedUser, response.data.token)
           } else {
             alert(response.data.message);
@@ -176,9 +166,12 @@ const LoginPopup = ({ setShowLogin, isOpen, onClose }) => {
      
 
   return (
-    <div className='fixed inset-x-0 bottom-0 top-16 z-50 grid place-items-start overflow-hidden bg-black/65 p-3 backdrop-blur-[2px] sm:top-20 sm:p-4 md:place-items-center'>
-      <form onSubmit={onLogin} className='relative my-auto w-full max-w-5xl max-h-[calc(100vh-4.5rem)] overflow-x-hidden overflow-y-auto rounded-[30px] border border-white/40 bg-white shadow-[0_25px_70px_rgba(0,0,0,0.35)] [scrollbar-width:thin] [scrollbar-color:#6b7280_#f6ad72] [&::-webkit-scrollbar]:w-2.5 [&::-webkit-scrollbar-track]:bg-[#f6ad72] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:border-2 [&::-webkit-scrollbar-thumb]:border-[#f6ad72] [&::-webkit-scrollbar-thumb]:bg-[#6b7280] [&::-webkit-scrollbar-thumb:hover]:bg-[#4b5563] sm:max-h-[calc(100vh-6rem)]'>
-        <img onClick={closePopup} src={assets.cross_icon} alt='Close popup' className='absolute right-5 top-5 z-20 h-5 w-5 cursor-pointer opacity-70 transition hover:rotate-90 hover:opacity-100'/>
+    <div className='fixed inset-x-0 bottom-0 top-16 z-50 grid place-items-start overflow-hidden bg-linear-to-b from-black/75 via-black/60 to-black/70 p-3 backdrop-blur-md sm:top-20 sm:p-4 md:place-items-center'>
+      <form onSubmit={onLogin} className='relative my-auto w-full max-w-5xl overflow-hidden rounded-[34px] border border-white/45 bg-orange/95 shadow-[0_34px_100px_rgba(0,0,0,0.5)] ring-1 ring-black/5'>
+        <div className='pointer-events-none absolute -left-12 -top-16 h-48 w-48 rounded-full bg-orange-200/40 blur-3xl' />
+        <div className='pointer-events-none absolute -bottom-16 -right-14 h-56 w-56 rounded-full bg-amber-300/25 blur-3xl' />
+
+        <img onClick={closePopup} src={assets.cross_icon} alt='Close popup' className='absolute right-5 top-5 z-20 h-5 w-5 cursor-pointer opacity-60 transition hover:rotate-90 hover:opacity-100'/>
 
         <div className='grid min-h-0 grid-cols-1 md:min-h-136 md:grid-cols-[1fr_1.05fr]'>
           <div className='relative hidden md:flex md:flex-col justify-between p-10 text-white overflow-hidden'>
@@ -211,21 +204,16 @@ const LoginPopup = ({ setShowLogin, isOpen, onClose }) => {
             </div>
           </div>
 
-          <div className='flex flex-col justify-center bg-linear-to-b from-[#fffaf5] to-white p-8 text-zinc-600 sm:p-12'>
-            <h3 className='text-[2.35rem] font-extrabold leading-[1.06] tracking-tight text-[#111827]'>
-              {currState === 'Login' && showAccountChoice ? (
-                <>
-                  Choose your{' '}
-                  <span className='bg-linear-to-r from-[#EA580C] to-[#FB923C] bg-clip-text text-transparent'>account </span>
-                </>
-              ) : currState === 'Login' ? (
+          <div className='relative flex flex-col justify-center border-l border-orange-100/70 bg-linear-to-b from-[#fff8f1] via-[#fffaf6] to-white p-7 text-zinc-600 sm:p-12'>
+            <div className='pointer-events-none absolute -right-10 -top-8 h-36 w-36 rounded-full bg-orange-200/35 blur-3xl' />
+            <div className='pointer-events-none absolute -left-8 bottom-6 h-28 w-28 rounded-full bg-amber-200/25 blur-2xl' />
+            <div className='mb-4 inline-flex w-fit items-center rounded-full border border-orange-200 bg-orange-100 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.08em] text-orange-700'>
+              Customer Access
+            </div>
+            <h3 className='text-[2.25rem] font-black leading-[1.08] tracking-tight text-[#111827] sm:text-[2.45rem]'>
+              {currState === 'Login' ? (
                 <>
                   Sign in to your{' '}
-                  <span className='bg-linear-to-r from-[#EA580C] to-[#FB923C] bg-clip-text text-transparent'>account</span>
-                </>
-              ) : showAccountChoice ? (
-                <>
-                  Create a new{' '}
                   <span className='bg-linear-to-r from-[#EA580C] to-[#FB923C] bg-clip-text text-transparent'>account</span>
                 </>
               ) : (
@@ -236,41 +224,25 @@ const LoginPopup = ({ setShowLogin, isOpen, onClose }) => {
               )}
             </h3>
 
-            <p className='mt-2 text-lg text-zinc-500'>
+            <p className='mt-2 text-base text-[#845638] sm:text-lg'>
               {currState === 'Login' ? (
-                showAccountChoice ? (
-                  <>Choose account type and continue to login.</>
-                ) : isPrivilegedLogin ? (
-                  <>
-                    {signupType === 'admin' ? 'Admin sign in only.' : 'Staff sign in only.'}{' '}
-                    <span
-                      onClick={()=>setSignupType(null)}
-                      className='cursor-pointer font-medium text-orange-500 hover:text-orange-600'
-                    >
-                      Switch account type
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    New customer?{' '}
-                    <span
-                      onClick={()=>{
-                        SetCurrState('Sign Up')
-                        setSignupType(null)
-                      }}
-                      className='cursor-pointer font-medium text-orange-500 hover:text-orange-600'
-                    >
-                      Create account
-                    </span>
-                  </>
-                )
+                <>
+                  New customer?{' '}
+                  <span
+                    onClick={() => {
+                      SetCurrState('Sign Up')
+                    }}
+                    className='cursor-pointer font-medium text-orange-500 hover:text-orange-600'
+                  >
+                    Create account
+                  </span>
+                </>
               ) : (
                 <>
                   Already have an account?{' '}
                   <span
-                    onClick={()=>{
+                    onClick={() => {
                       SetCurrState('Login')
-                      setSignupType(null)
                     }}
                     className='cursor-pointer font-medium text-orange-500 hover:text-orange-600'
                   >
@@ -280,128 +252,71 @@ const LoginPopup = ({ setShowLogin, isOpen, onClose }) => {
               )}
             </p>
 
-            {showAccountChoice ? (
-              <div className='mt-8 space-y-4'>
-
-                <button
-                  type='button'
-                  onClick={() => {
-                    setSignupType('customer')
-                  }}
-                  className='group w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-left transition hover:-translate-y-0.5 hover:border-zinc-400 hover:shadow-[0_12px_26px_rgba(0,0,0,0.08)]'
-                >
-                  <span className='block text-xl font-bold text-zinc-800'>
-                    {currState === 'Login' ? 'Login as Customer' : 'Continue with Customer'}
-                  </span>
-                </button>
-
-                <button
-                  type='button'
-                  onClick={() => {
-                    setSignupType('admin')
-                    SetCurrState('Login')
-                  }}
-                  className='group w-full rounded-2xl border border-orange-200 bg-linear-to-r from-orange-50 to-white px-5 py-4 text-left transition hover:-translate-y-0.5 hover:border-orange-300 hover:shadow-[0_12px_26px_rgba(234,88,12,0.14)]'
-                >
-                  <span className='block text-xl font-bold text-orange-700'>Login as Admin</span>
-                </button>
-
-                <button
-                  type='button'
-                  onClick={() => {
-                    setSignupType('staff')
-                    SetCurrState('Login')
-                  }}
-                  className='group w-full rounded-2xl border border-orange-200 bg-linear-to-r from-amber-50 to-white px-5 py-4 text-left transition hover:-translate-y-0.5 hover:border-orange-300 hover:shadow-[0_12px_26px_rgba(234,88,12,0.14)]'
-                >
-                  <span className='block text-xl font-bold text-orange-700'>Login as Staff</span>
-                </button>
-              </div>
-            ) : (
-              <>
-                <div className='mt-8 flex flex-col gap-4'>
-                  {currState === 'Login' ? null : (
-                    <input
-                      name='name'
-                      onChange={onChangeHandler}
-                      value={data.name}
-                      type='text'
-                      placeholder='Enter your name'
-                      required
-                      className='w-full rounded-xl border border-zinc-300 bg-white/90 px-5 py-3 text-base text-zinc-800 shadow-[0_6px_16px_rgba(0,0,0,0.04)] outline-none transition focus:border-orange-500 focus:ring-2 focus:ring-orange-200'
-                    />
-                  )}
-                  {currState === 'Login' ? (
-                    <input
-                      name='username'
-                      onChange={onChangeHandler}
-                      value={data.username}
-                      type='text'
-                      placeholder='Enter username or email'
-                      required
-                      className='w-full rounded-xl border border-zinc-300 bg-white/90 px-5 py-3 text-base text-zinc-800 shadow-[0_6px_16px_rgba(0,0,0,0.04)] outline-none transition focus:border-orange-500 focus:ring-2 focus:ring-orange-200'
-                    />
-                  ) : (
-                    <>
-                      <input
-                        name='email'
-                        onChange={onChangeHandler}
-                        value={data.email}
-                        type='email'
-                        placeholder='Enter your email'
-                        required
-                        className='w-full rounded-xl border border-zinc-300 bg-white/90 px-5 py-3 text-base text-zinc-800 shadow-[0_6px_16px_rgba(0,0,0,0.04)] outline-none transition focus:border-orange-500 focus:ring-2 focus:ring-orange-200'
-                      />
-                      <input
-                        name='username'
-                        onChange={onChangeHandler}
-                        value={data.username}
-                        type='text'
-                        placeholder='Choose a username'
-                        required
-                        className='w-full rounded-xl border border-zinc-300 bg-white/90 px-5 py-3 text-base text-zinc-800 shadow-[0_6px_16px_rgba(0,0,0,0.04)] outline-none transition focus:border-orange-500 focus:ring-2 focus:ring-orange-200'
-                      />
-                    </>
-                  )}
+            <div className='mt-8 flex flex-col gap-4'>
+              {currState === 'Login' ? null : (
+                <input
+                  name='name'
+                  onChange={onChangeHandler}
+                  value={data.name}
+                  type='text'
+                  placeholder='Enter your name'
+                  required
+                  className={fieldInputClasses}
+                />
+              )}
+              {currState === 'Login' ? (
+                <input
+                  name='username'
+                  onChange={onChangeHandler}
+                  value={data.username}
+                  type='text'
+                  placeholder='Enter username or email'
+                  required
+                  className={fieldInputClasses}
+                />
+              ) : (
+                <>
                   <input
-                    name='password'
+                    name='email'
                     onChange={onChangeHandler}
-                    value={data.password}
-                    type='password'
-                    placeholder='Enter your password'
+                    value={data.email}
+                    type='email'
+                    placeholder='Enter your email'
                     required
-                    className='w-full rounded-xl border border-zinc-300 bg-white/90 px-5 py-3 text-base text-zinc-800 shadow-[0_6px_16px_rgba(0,0,0,0.04)] outline-none transition focus:border-orange-500 focus:ring-2 focus:ring-orange-200'
+                    className={fieldInputClasses}
                   />
-                </div>
+                  <input
+                    name='username'
+                    onChange={onChangeHandler}
+                    value={data.username}
+                    type='text'
+                    placeholder='Choose a username'
+                    required
+                    className={fieldInputClasses}
+                  />
+                </>
+              )}
+              <input
+                name='password'
+                onChange={onChangeHandler}
+                value={data.password}
+                type='password'
+                placeholder='Enter your password'
+                required
+                className={fieldInputClasses}
+              />
+            </div>
 
-                {currState === 'Sign Up' && (
-                  <button
-                    type='button'
-                    onClick={() => {
-                      setSignupType(null)
-                    }}
-                    className='mt-3 text-sm font-medium text-orange-600 transition hover:text-orange-700'
-                  >
-                    Change account type
-                  </button>
-                )}
-              </>
-            )}
+            <div className='mt-4 flex items-start gap-2 rounded-2xl border border-zinc-200/80 bg-zinc-50/90 p-3.5'>
+              <input type='checkbox' required className='mt-1 h-4 w-4 accent-orange-500'/>
+              <p className='text-sm leading-5 text-zinc-500'>By continuing, I agree to the terms of use & privacy policy.</p>
+            </div>
 
-              {!showAccountChoice && (
-              <div className='mt-4 flex items-start gap-2 rounded-xl bg-zinc-50/80 p-3'>
-                <input type='checkbox' required className='mt-1 h-4 w-4 accent-orange-500'/>
-                <p className='text-sm leading-5 text-zinc-500'>By continuing, I agree to the terms of use & privacy policy.</p>
-              </div>
-            )}
+            <button type='submit' className={`mt-6 w-full rounded-2xl px-4 py-3.5 text-xl font-extrabold tracking-tight text-white transition active:scale-[0.98] ${submitButtonClasses}`}>
+              {currState === 'Sign Up' ? 'Create Account' : 'Continue'}
+            </button>
 
-            {!showAccountChoice && (
-              <button type='submit' className={`mt-6 w-full rounded-2xl px-4 py-3 text-xl font-extrabold tracking-tight text-white transition active:scale-[0.98] ${submitButtonClasses}`}>
-                {currState === 'Sign Up' ? 'Create Account' : 'Continue'}
-              </button>
-            )}
-
-            {!showAccountChoice && isCustomerFlow && (
+            {isCustomerFlow && (
               <>
                 <div className='mt-4 flex items-center gap-3'>
                   <span className='h-px flex-1 bg-zinc-200'></span>
