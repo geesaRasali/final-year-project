@@ -78,7 +78,13 @@ const EditProfile = () => {
 
   const profileImageSrc = useMemo(() => {
     if (previewUrl) return previewUrl;
-    if (user?.profileImage) return `${url}${user.profileImage}`;
+    if (user?.profileImage) {
+      const rawProfileImage = user.profileImage.trim();
+      if (rawProfileImage.startsWith('http://') || rawProfileImage.startsWith('https://')) {
+        return rawProfileImage;
+      }
+      return `${url}${rawProfileImage}`;
+    }
     return user?.avatar || assets.profile_icon;
   }, [previewUrl, user, url]);
 

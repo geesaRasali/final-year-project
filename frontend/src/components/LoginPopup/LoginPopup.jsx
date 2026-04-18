@@ -1,20 +1,22 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { assets } from '../../assets/assets'
 import { StoreContext } from '../../context/StoreContext'
 import axios from 'axios'
 import { GoogleLogin } from '@react-oauth/google'
 
 const LoginPopup = ({ setShowLogin, isOpen, onClose }) => {
+  const navigate = useNavigate()
   const { url, setToken, setUser } = useContext(StoreContext)
   const hasGoogleClientId = Boolean((import.meta.env.VITE_GOOGLE_CLIENT_ID || '').trim())
   const [currState, SetCurrState] = useState('Sign Up')
   const [signupType, setSignupType] = useState(null)
+  const [googleError, setGoogleError] = useState('')
   const [data, setData] = useState({
     name: '',
     email: '',
     username: '',
     password: '',
-    role: 'customer',
   })
 
     const closePopup = () => {
@@ -24,6 +26,23 @@ const LoginPopup = ({ setShowLogin, isOpen, onClose }) => {
         setShowLogin(false);
       }
     };
+
+      useEffect(() => {
+        if (!isOpen) {
+          return
+        }
+
+        const previousBodyOverflow = document.body.style.overflow
+        const previousHtmlOverflow = document.documentElement.style.overflow
+
+        document.body.style.overflow = 'hidden'
+        document.documentElement.style.overflow = 'hidden'
+
+        return () => {
+          document.body.style.overflow = previousBodyOverflow
+          document.documentElement.style.overflow = previousHtmlOverflow
+        }
+      }, [isOpen])
 
     if (isOpen === false) {
       return null;
@@ -38,7 +57,7 @@ const LoginPopup = ({ setShowLogin, isOpen, onClose }) => {
       const showAccountChoice = !signupType
       const isPrivilegedLogin = currState === 'Login' && (signupType === 'admin' || signupType === 'staff')
       const isCustomerLogin = currState === 'Login' && signupType === 'customer'
-      const selectedRole = signupType || data.role
+      const isCustomerFlow = signupType === 'customer'
       const submitButtonClasses = 'bg-linear-to-r from-orange-500 to-orange-400 hover:from-orange-600 hover:to-orange-500 hover:shadow-[0_12px_24px_rgba(234,88,12,0.35)]'
 
       const applyAuthSuccess = (responseUser, token) => {
@@ -53,11 +72,11 @@ const LoginPopup = ({ setShowLogin, isOpen, onClose }) => {
         localStorage.setItem('user', JSON.stringify(normalizedUser))
 
         if (normalizedUser.role === 'admin') {
-          window.location.href = '/admin'
+          navigate('/admin')
         } else if (normalizedUser.role === 'staff') {
-          window.location.href = '/staff'
+          navigate('/staff')
         } else {
-          window.location.href = '/'
+          navigate('/')
         }
 
         closePopup()
@@ -65,8 +84,9 @@ const LoginPopup = ({ setShowLogin, isOpen, onClose }) => {
 
       const onGoogleLoginSuccess = async (credentialResponse) => {
         try {
+          setGoogleError('')
           if (!credentialResponse?.credential) {
-            alert('Google sign-in did not return a credential.')
+            setGoogleError('Google sign-in did not return a credential. Please try again.')
             return
           }
 
@@ -75,20 +95,29 @@ const LoginPopup = ({ setShowLogin, isOpen, onClose }) => {
           })
 
           if (!response.data.success) {
-            alert(response.data.message || 'Google login failed.')
+            const serverMessage = response.data.message || 'Google login failed.'
+            if (serverMessage === 'Google login failed') {
+              setGoogleError('Google login failed. Restart backend server to load latest Google error handling, then retry. If it still fails, check OAuth client and origin settings in Google Cloud Console.')
+            } else {
+              setGoogleError(serverMessage)
+            }
             return
           }
 
           if (!response.data.user || !response.data.token) {
-            alert('Invalid response from server.')
+            setGoogleError('Invalid response from server.')
             return
           }
 
           applyAuthSuccess(response.data.user, response.data.token)
         } catch (error) {
           console.error('Google login error:', error)
-          alert('An error occurred during Google login. Please try again.')
+          setGoogleError('Google login failed. If Google shows "Error 401: deleted_client", replace VITE_GOOGLE_CLIENT_ID with a valid Google Web Client ID and restart the frontend.')
         }
+      }
+
+      const onGoogleLoginError = () => {
+        setGoogleError('Google sign-in failed. If you see "Error 401: deleted_client", your OAuth client was deleted. Create a new Google Web Client ID, update VITE_GOOGLE_CLIENT_ID, and restart frontend.')
       }
 
       
@@ -109,7 +138,6 @@ const LoginPopup = ({ setShowLogin, isOpen, onClose }) => {
               email: data.email,
               username: data.username,
               password: data.password,
-              role: data.role,
             };
 
         try {
@@ -148,11 +176,11 @@ const LoginPopup = ({ setShowLogin, isOpen, onClose }) => {
      
 
   return (
-    <div className='fixed inset-0 z-50 grid place-items-center bg-black/65 p-4 backdrop-blur-[2px]'>
-      <form onSubmit={onLogin} className='relative w-full max-w-5xl overflow-hidden rounded-[30px] border border-white/40 bg-white shadow-[0_25px_70px_rgba(0,0,0,0.35)]'>
+    <div className='fixed inset-x-0 bottom-0 top-16 z-50 grid place-items-start overflow-hidden bg-black/65 p-3 backdrop-blur-[2px] sm:top-20 sm:p-4 md:place-items-center'>
+      <form onSubmit={onLogin} className='relative my-auto w-full max-w-5xl max-h-[calc(100vh-4.5rem)] overflow-x-hidden overflow-y-auto rounded-[30px] border border-white/40 bg-white shadow-[0_25px_70px_rgba(0,0,0,0.35)] [scrollbar-width:thin] [scrollbar-color:#6b7280_#f6ad72] [&::-webkit-scrollbar]:w-2.5 [&::-webkit-scrollbar-track]:bg-[#f6ad72] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:border-2 [&::-webkit-scrollbar-thumb]:border-[#f6ad72] [&::-webkit-scrollbar-thumb]:bg-[#6b7280] [&::-webkit-scrollbar-thumb:hover]:bg-[#4b5563] sm:max-h-[calc(100vh-6rem)]'>
         <img onClick={closePopup} src={assets.cross_icon} alt='Close popup' className='absolute right-5 top-5 z-20 h-5 w-5 cursor-pointer opacity-70 transition hover:rotate-90 hover:opacity-100'/>
 
-        <div className='grid min-h-136 grid-cols-1 md:grid-cols-[1fr_1.05fr]'>
+        <div className='grid min-h-0 grid-cols-1 md:min-h-136 md:grid-cols-[1fr_1.05fr]'>
           <div className='relative hidden md:flex md:flex-col justify-between p-10 text-white overflow-hidden'>
 
   {/* BACKGROUND IMAGE */}
@@ -229,7 +257,6 @@ const LoginPopup = ({ setShowLogin, isOpen, onClose }) => {
                       onClick={()=>{
                         SetCurrState('Sign Up')
                         setSignupType(null)
-                        setData((prev) => ({ ...prev, role: 'customer' }))
                       }}
                       className='cursor-pointer font-medium text-orange-500 hover:text-orange-600'
                     >
@@ -260,7 +287,6 @@ const LoginPopup = ({ setShowLogin, isOpen, onClose }) => {
                   type='button'
                   onClick={() => {
                     setSignupType('customer')
-                    setData((prev) => ({ ...prev, role: 'customer' }))
                   }}
                   className='group w-full rounded-2xl border border-zinc-300 bg-white px-5 py-4 text-left transition hover:-translate-y-0.5 hover:border-zinc-400 hover:shadow-[0_12px_26px_rgba(0,0,0,0.08)]'
                 >
@@ -273,7 +299,6 @@ const LoginPopup = ({ setShowLogin, isOpen, onClose }) => {
                   type='button'
                   onClick={() => {
                     setSignupType('admin')
-                    setData((prev) => ({ ...prev, role: 'admin' }))
                     SetCurrState('Login')
                   }}
                   className='group w-full rounded-2xl border border-orange-200 bg-linear-to-r from-orange-50 to-white px-5 py-4 text-left transition hover:-translate-y-0.5 hover:border-orange-300 hover:shadow-[0_12px_26px_rgba(234,88,12,0.14)]'
@@ -285,7 +310,6 @@ const LoginPopup = ({ setShowLogin, isOpen, onClose }) => {
                   type='button'
                   onClick={() => {
                     setSignupType('staff')
-                    setData((prev) => ({ ...prev, role: 'staff' }))
                     SetCurrState('Login')
                   }}
                   className='group w-full rounded-2xl border border-orange-200 bg-linear-to-r from-amber-50 to-white px-5 py-4 text-left transition hover:-translate-y-0.5 hover:border-orange-300 hover:shadow-[0_12px_26px_rgba(234,88,12,0.14)]'
@@ -355,7 +379,6 @@ const LoginPopup = ({ setShowLogin, isOpen, onClose }) => {
                     type='button'
                     onClick={() => {
                       setSignupType(null)
-                      setData((prev) => ({ ...prev, role: 'customer' }))
                     }}
                     className='mt-3 text-sm font-medium text-orange-600 transition hover:text-orange-700'
                   >
@@ -365,13 +388,20 @@ const LoginPopup = ({ setShowLogin, isOpen, onClose }) => {
               </>
             )}
 
+              {!showAccountChoice && (
+              <div className='mt-4 flex items-start gap-2 rounded-xl bg-zinc-50/80 p-3'>
+                <input type='checkbox' required className='mt-1 h-4 w-4 accent-orange-500'/>
+                <p className='text-sm leading-5 text-zinc-500'>By continuing, I agree to the terms of use & privacy policy.</p>
+              </div>
+            )}
+
             {!showAccountChoice && (
               <button type='submit' className={`mt-6 w-full rounded-2xl px-4 py-3 text-xl font-extrabold tracking-tight text-white transition active:scale-[0.98] ${submitButtonClasses}`}>
                 {currState === 'Sign Up' ? 'Create Account' : 'Continue'}
               </button>
             )}
 
-            {!showAccountChoice && isCustomerLogin && (
+            {!showAccountChoice && isCustomerFlow && (
               <>
                 <div className='mt-4 flex items-center gap-3'>
                   <span className='h-px flex-1 bg-zinc-200'></span>
@@ -379,30 +409,39 @@ const LoginPopup = ({ setShowLogin, isOpen, onClose }) => {
                   <span className='h-px flex-1 bg-zinc-200'></span>
                 </div>
                 {hasGoogleClientId ? (
-                  <div className='mt-3 flex justify-center rounded-2xl border border-zinc-300 bg-white px-3 py-2'>
+                  <div className='mt-3 flex justify-center'>
                     <GoogleLogin
                       theme='outline'
                       shape='pill'
                       text='continue_with'
                       width='320'
                       onSuccess={onGoogleLoginSuccess}
-                      onError={() => alert('Google sign-in was cancelled or failed.')}
+                      onError={onGoogleLoginError}
                     />
                   </div>
                 ) : (
-                  <p className='mt-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-center text-xs font-medium text-amber-700'>
-                    Google login is not configured. Add VITE_GOOGLE_CLIENT_ID in frontend .env.
+                  <div className='mx-auto mt-3 w-full max-w-90 space-y-2'>
+                    <button
+                      type='button'
+                      disabled
+                      className='w-full rounded-full border border-zinc-300 bg-zinc-50 px-4 py-2 text-sm font-medium text-zinc-500 cursor-not-allowed'
+                    >
+                      Continue with Google
+                    </button>
+                    <p className='rounded-xl border bg-center border-amber-200 bg-amber-50 px-3 py-2 text-center text-xs font-medium text-amber-700'>
+                      Google login is not configured. Add VITE_GOOGLE_CLIENT_ID in frontend .env.
+                    </p>
+                  </div>
+                )}
+                {hasGoogleClientId && googleError && (
+                  <p className='mx-auto mt-2 w-full max-w-90 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-center text-xs font-medium text-red-700'>
+                    {googleError}
                   </p>
                 )}
               </>
             )}
 
-            {!showAccountChoice && (
-              <div className='mt-4 flex items-start gap-2 rounded-xl bg-zinc-50/80 p-3'>
-                <input type='checkbox' required className='mt-1 h-4 w-4 accent-orange-500'/>
-                <p className='text-sm leading-5 text-zinc-500'>By continuing, I agree to the terms of use & privacy policy.</p>
-              </div>
-            )}
+          
           </div>
         </div>
       </form>

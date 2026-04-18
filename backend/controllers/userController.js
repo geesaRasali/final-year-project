@@ -7,6 +7,33 @@ import { OAuth2Client } from "google-auth-library"
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID)
 
+const mapGoogleAuthError = (error) => {
+    const rawMessage = String(error?.message || "");
+    const message = rawMessage.toLowerCase();
+
+    if (!rawMessage) {
+        return "Google login failed. Unknown OAuth error.";
+    }
+
+    if (message.includes("wrong recipient") || message.includes("audience") || message.includes("aud")) {
+        return "Google client ID mismatch. Use the same client ID in frontend VITE_GOOGLE_CLIENT_ID and backend GOOGLE_CLIENT_ID.";
+    }
+
+    if (message.includes("deleted_client")) {
+        return "Google OAuth client was deleted. Create a new Web Client ID and update frontend/backend env values.";
+    }
+
+    if (message.includes("invalid token") || message.includes("malformed")) {
+        return "Google returned an invalid token. Please try again.";
+    }
+
+    if (message.includes("origin") || message.includes("not allowed") || message.includes("unauthorized")) {
+        return "Google OAuth origin is not allowed. Add your frontend URL to Authorized JavaScript origins in Google Cloud Console.";
+    }
+
+    return `Google login failed: ${rawMessage}`;
+}
+
 //create token
 const createToken = (id) => {
     return jwt.sign({id}, process.env.JWT_SECRET)
@@ -212,7 +239,7 @@ const loginUser = async (req, res) => {
 
 // ================= REGISTER =================
 const registerUser = async (req, res) => {
-    const { name, email, username, password, role } = req.body;
+    const { name, email, username, password } = req.body;
     try {
         const normalizedName = (name || "").trim();
         const normalizedEmail = (email || "").trim().toLowerCase();
@@ -249,7 +276,7 @@ const registerUser = async (req, res) => {
             email: normalizedEmail,
             username: normalizedUsername,
             password: hashedPassword,
-            role: role || "customer"
+            role: "customer" // Always default to customer
         });
 
         const user = await newUser.save();
@@ -340,7 +367,7 @@ const googleLoginUser = async (req, res) => {
         });
     } catch (error) {
         console.log(error);
-        return res.json({ success: false, message: "Google login failed" });
+        return res.json({ success: false, message: mapGoogleAuthError(error) });
     }
 }
 

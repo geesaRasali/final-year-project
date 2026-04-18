@@ -58,7 +58,7 @@ body {
 	transition: background-color 200ms ease, color 200ms ease;
 }
 
-/* Remove white scrollbar track and keep theme-consistent colors */
+/* Global scrollbar colors */
 * {
 	scrollbar-width: thin;
 	scrollbar-color: #6b7280 #f6ad72;
@@ -126,13 +126,13 @@ body {
 }
 
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
+	* {
+		@apply border-border outline-ring/50;
 	}
-  body {
-    @apply bg-background text-foreground;
+	body {
+		@apply bg-background text-foreground;
 	}
-  html {
-    @apply font-sans;
+	html {
+		@apply font-sans;
 	}
 }

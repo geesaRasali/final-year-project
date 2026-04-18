@@ -57,6 +57,17 @@ const Navbar = ({ onUserIconClick, setShowLogin }) => {
     { name: 'Contact', path: '/contact' },
   ];
 
+  const profileImageSrc = (() => {
+    const rawProfileImage = (user?.profileImage || '').trim();
+    if (rawProfileImage) {
+      if (rawProfileImage.startsWith('http://') || rawProfileImage.startsWith('https://')) {
+        return rawProfileImage;
+      }
+      return `${url}${rawProfileImage}`;
+    }
+    return user?.avatar || assets.profile_icon;
+  })();
+
   return (
     <nav className='sticky top-0 z-50 w-full border-b border-orange-300/30 bg-linear-to-r from-orange-600/90 via-amber-500/85 to-orange-400/80 shadow-[0_4px_24px_rgba(251,146,60,0.35)] backdrop-blur-lg'>
       <div className='w-full px-4 sm:px-6 md:px-10 lg:px-14 xl:px-20'>
@@ -100,7 +111,7 @@ const Navbar = ({ onUserIconClick, setShowLogin }) => {
                   className='rounded-full border border-white/60 bg-white/20 p-1.5 shadow-[0_2px_12px_rgba(0,0,0,0.15)] backdrop-blur-sm transition hover:bg-white/35'
                 >
                   <img
-                    src={user?.profileImage ? `${url}${user.profileImage}` : user?.avatar || assets.profile_icon}
+                    src={profileImageSrc}
                     alt={user?.email || 'Customer profile'}
                     className='h-9 w-9 rounded-full object-cover'
                   />

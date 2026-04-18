@@ -1,7 +1,33 @@
 import React from 'react';
-import {assets} from '../../assets/assets';
+import { assets, url } from '../../assets/assets';
 
 const Navbar = ({ adminUser, onLogout }) => {
+  const rawProfileImage = (adminUser?.profileImage || '').trim();
+  const isAbsoluteProfileImage = rawProfileImage.startsWith('http://') || rawProfileImage.startsWith('https://');
+  const isRelativeProfileImage = rawProfileImage.startsWith('/');
+  const isImagesFolderPath = rawProfileImage.startsWith('images/');
+  const isFileNameLike = rawProfileImage.includes('.') && !rawProfileImage.includes(' ');
+
+  let resolvedProfileImage = '';
+  if (rawProfileImage) {
+    if (isAbsoluteProfileImage) {
+      resolvedProfileImage = rawProfileImage;
+    } else if (isRelativeProfileImage) {
+      resolvedProfileImage = `${url}${rawProfileImage}`;
+    } else if (isImagesFolderPath) {
+      resolvedProfileImage = `${url}/${rawProfileImage}`;
+    } else if (isFileNameLike) {
+      resolvedProfileImage = `${url}/images/${rawProfileImage}`;
+    }
+  }
+
+  const googleImageFromEmail = adminUser?.email
+    ? `https://www.google.com/s2/photos/profile/${encodeURIComponent(adminUser.email)}?sz=120`
+    : '';
+
+  const fallbackImage = googleImageFromEmail || adminUser?.avatar || assets.profile_image;
+  const displayImage = resolvedProfileImage || fallbackImage;
+
   return (
     <div className="flex items-center justify-between bg-white px-[4%] py-2 shadow-[0_2px_5px_rgba(0,0,0,0.1)]">
       <img className="w-[max(10%,80px)]" src={assets.logo} alt="Admin logo" />
@@ -12,8 +38,15 @@ const Navbar = ({ adminUser, onLogout }) => {
         </div>
         <img
           className="h-10 w-10 rounded-full bg-orange-500 object-cover"
-          src={assets.profile_image}
+          src={displayImage}
           alt="Admin profile"
+          onError={(event) => {
+            if (event.currentTarget.src !== fallbackImage) {
+              event.currentTarget.src = fallbackImage;
+              return;
+            }
+            event.currentTarget.src = assets.profile_image;
+          }}
         />
         <button
           type="button"
