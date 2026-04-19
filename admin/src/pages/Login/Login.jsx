@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import './Login.css';
+import { isAdminPanelRole, normalizeRole, ROLE_LABELS } from '../../config/rbac';
 
 const Login = ({ url, onAdminLogin }) => {
   const [credentials, setCredentials] = useState({ username: '', password: '' });
@@ -40,13 +40,15 @@ const Login = ({ url, onAdminLogin }) => {
         return;
       }
 
-      if (user.role !== 'admin') {
-        toast.error('Only admin can access dashboard');
+      const normalizedRole = normalizeRole(user.role);
+
+      if (!isAdminPanelRole(normalizedRole)) {
+        toast.error('Your account does not have admin panel access');
         return;
       }
 
-      toast.success('Welcome admin');
-      onAdminLogin(token, user);
+      toast.success(`Welcome ${ROLE_LABELS[normalizedRole] || normalizedRole}`);
+      onAdminLogin(token, { ...user, role: normalizedRole });
     } catch (error) {
       console.error('Admin login error:', error);
       toast.error('Unable to login. Check credentials.');
@@ -56,10 +58,10 @@ const Login = ({ url, onAdminLogin }) => {
   };
 
   return (
-    <div className='admin-login'>
-      <form onSubmit={onSubmit} className='admin-login-card'>
-        <h2>Admin Login</h2>
-        <p>Enter username and password to open dashboard</p>
+    <div className='grid min-h-screen place-items-center bg-gradient-to-br from-orange-50 via-white to-amber-50 p-4'>
+      <form onSubmit={onSubmit} className='w-full max-w-md rounded-2xl border border-orange-200 bg-white p-7 shadow-[0_18px_45px_rgba(234,88,12,0.12)]'>
+        <h2 className='text-3xl font-bold tracking-tight text-zinc-900'>Admin Panel Login</h2>
+        <p className='mb-5 mt-1 text-sm text-zinc-500'>Use your assigned username/email and password</p>
 
         <input
           name='username'
@@ -69,6 +71,7 @@ const Login = ({ url, onAdminLogin }) => {
           onChange={onChange}
           autoComplete='username'
           required
+          className='mb-3 w-full rounded-xl border border-zinc-300 px-3.5 py-3 text-sm outline-none transition focus:border-orange-400 focus:ring-4 focus:ring-orange-100'
         />
 
         <input
@@ -79,9 +82,14 @@ const Login = ({ url, onAdminLogin }) => {
           onChange={onChange}
           autoComplete='current-password'
           required
+          className='w-full rounded-xl border border-zinc-300 px-3.5 py-3 text-sm outline-none transition focus:border-orange-400 focus:ring-4 focus:ring-orange-100'
         />
 
-        <button type='submit' disabled={isSubmitting}>
+        <button
+          type='submit'
+          disabled={isSubmitting}
+          className='mt-4 w-full rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 px-4 py-3 text-sm font-bold text-white transition hover:from-orange-600 hover:to-orange-700 disabled:cursor-not-allowed disabled:opacity-70'
+        >
           {isSubmitting ? 'Signing in...' : 'Login to Dashboard'}
         </button>
       </form>

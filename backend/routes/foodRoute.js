@@ -5,6 +5,9 @@ import {
   listFood,
   removeFood,
 } from "../controllers/foodController.js";
+import authMiddleware from "../middleware/auth.js";
+import { requireRoles } from "../middleware/authorize.js";
+import { FOOD_WRITE_ROLES } from "../constants/roles.js";
 
 const foodRouter = express.Router();
 
@@ -19,8 +22,8 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-foodRouter.post("/add", upload.single("image"), addFood);
+foodRouter.post("/add", authMiddleware, requireRoles(...FOOD_WRITE_ROLES), upload.single("image"), addFood);
 foodRouter.get("/list", listFood);
-foodRouter.post("/remove", removeFood);
+foodRouter.post("/remove", authMiddleware, requireRoles(...FOOD_WRITE_ROLES), removeFood);
 
 export default foodRouter;

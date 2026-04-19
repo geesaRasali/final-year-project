@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt';
 import mongoose from 'mongoose';
 import { connectDB } from './config/db.js';
 import userModel from './models/userModel.js';
+import { USER_ROLES } from './constants/roles.js';
 
 const [usernameArg, emailArg, passwordArg, nameArg] = process.argv.slice(2);
 
@@ -40,7 +41,7 @@ const run = async () => {
       existing.username = username;
       existing.email = email;
       existing.password = hashedPassword;
-      existing.role = 'admin';
+      existing.role = USER_ROLES.ADMIN;
       await existing.save();
       console.log(`Updated existing user as admin: ${email}`);
     } else {
@@ -49,7 +50,7 @@ const run = async () => {
         username,
         email,
         password: hashedPassword,
-        role: 'admin',
+        role: USER_ROLES.ADMIN,
       });
       console.log(`Created admin user: ${email}`);
     }

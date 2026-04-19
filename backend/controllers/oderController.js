@@ -1,7 +1,7 @@
 import orderModel from "../models/orderModel.js";
 import userModel from "../models/userModel.js";
 import Stripe from "stripe";
-import jwt from "jsonwebtoken";
+import { DELIVERY_ALLOWED_STATUSES, USER_ROLES } from "../constants/roles.js";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
@@ -15,10 +15,11 @@ const placeOrder = async (req, res) => {
       return res.json({ success: false, message: "Missing required fields" });
     }
 
-    // Extract userId from JWT token
-    const token = req.headers.token;
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const userId = decoded.id;
+    const userId = req.userId || req.user?.id;
+
+    if (!userId) {
+      return res.json({ success: false, message: "Not Authorized Login Again" });
+    }
 
     const newOrder = new orderModel({
       userId: userId,
@@ -118,7 +119,19 @@ const listOrders = async (req, res) => {
 const updateStatus = async (req, res) => {
   try {
     const { orderId, status } = req.body;
-    await orderModel.findByIdAndUpdate(req.body.orderId, { status:req.body.status });
+
+    if (!orderId || !status) {
+      return res.json({ success: false, message: "Order ID and status are required" });
+    }
+
+    const role = req.user?.role;
+    const normalizedRole = role === USER_ROLES.STAFF ? USER_ROLES.MANAGEMENT_STAFF : role;
+
+    if (normalizedRole === USER_ROLES.DELIVERY_STAFF && !DELIVERY_ALLOWED_STATUSES.includes(status)) {
+      return res.json({ success: false, message: "Delivery staff can only set Out for delivery or Delivered" });
+    }
+
+    await orderModel.findByIdAndUpdate(orderId, { status });
     res.json({ success: true, message: "Status Updated" });
   } catch (error) {
     console.log(error);

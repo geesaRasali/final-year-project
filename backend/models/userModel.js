@@ -1,12 +1,13 @@
 import mongoose from "mongoose";
+import { USER_ROLES } from "../constants/roles.js";
 
 const userSchema = new mongoose.Schema({
     name: { type: String, required: true },
 
     role: {
         type: String,
-        enum: ["customer", "admin", "staff"],
-        default: "customer"
+        enum: Object.values(USER_ROLES),
+        default: USER_ROLES.CUSTOMER
     },
 
     email: {

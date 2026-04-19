@@ -4,8 +4,26 @@ import bcrypt from "bcrypt"
 import validator from "validator"
 import crypto from "crypto"
 import { OAuth2Client } from "google-auth-library"
+import { ADMIN_PANEL_ROLES, STAFF_MANAGEABLE_ROLES, USER_ROLES } from "../constants/roles.js"
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID)
+
+const normalizeRole = (role) => {
+    if (role === USER_ROLES.STAFF) {
+        return USER_ROLES.MANAGEMENT_STAFF;
+    }
+    return role;
+}
+
+const sanitizeUser = (user) => ({
+    id: user._id,
+    name: user.name,
+    username: user.username,
+    email: user.email,
+    role: normalizeRole(user.role),
+    profileImage: getProfileImageUrl(user.profileImage),
+    avatar: buildAvatarUrl(user.email),
+});
 
 const mapGoogleAuthError = (error) => {
     const rawMessage = String(error?.message || "");
@@ -87,14 +105,7 @@ const getUserProfile = async (req, res) => {
 
         res.json({
             success: true,
-            user: {
-                name: user.name,
-                username: user.username,
-                email: user.email,
-                role: user.role,
-                profileImage: getProfileImageUrl(user.profileImage),
-                avatar: buildAvatarUrl(user.email),
-            },
+            user: sanitizeUser(user),
         });
     } catch (error) {
         console.log(error);
@@ -174,14 +185,7 @@ const updateUserProfile = async (req, res) => {
 
         res.json({
             success: true,
-            user: {
-                name: currentUser.name,
-                username: currentUser.username,
-                email: currentUser.email,
-                role: currentUser.role,
-                profileImage: getProfileImageUrl(currentUser.profileImage),
-                avatar: buildAvatarUrl(currentUser.email),
-            },
+            user: sanitizeUser(currentUser),
         });
     } catch (error) {
         console.log(error);
@@ -221,14 +225,7 @@ const loginUser = async (req, res) => {
         res.json({
             success: true,
             token,
-            user: {
-                name: user.name,
-                username: user.username,
-                email: user.email,
-                role:user.role,
-                profileImage: getProfileImageUrl(user.profileImage),
-                avatar: buildAvatarUrl(user.email),
-            },
+            user: sanitizeUser(user),
         });
 
     } catch (error) {
@@ -276,7 +273,7 @@ const registerUser = async (req, res) => {
             email: normalizedEmail,
             username: normalizedUsername,
             password: hashedPassword,
-            role: "customer" // Always default to customer
+                role: USER_ROLES.CUSTOMER
         });
 
         const user = await newUser.save();
@@ -286,14 +283,7 @@ const registerUser = async (req, res) => {
         res.json({
             success: true,
             token,
-            user: {
-                name: user.name,
-                username: user.username,
-                email: user.email,
-                role: user.role,
-                profileImage: getProfileImageUrl(user.profileImage),
-                avatar: buildAvatarUrl(user.email),
-            },
+            user: sanitizeUser(user),
         });
 
     } catch (error) {
@@ -346,7 +336,7 @@ const googleLoginUser = async (req, res) => {
                 email,
                 username,
                 password: hashedPassword,
-                role: "customer",
+                role: USER_ROLES.CUSTOMER,
             });
 
             user = await newUser.save();
@@ -357,11 +347,7 @@ const googleLoginUser = async (req, res) => {
             success: true,
             token,
             user: {
-                name: user.name,
-                username: user.username,
-                email: user.email,
-                role: user.role,
-                profileImage: getProfileImageUrl(user.profileImage),
+                ...sanitizeUser(user),
                 avatar,
             },
         });
@@ -371,4 +357,194 @@ const googleLoginUser = async (req, res) => {
     }
 }
 
-export { loginUser, registerUser, getUserProfile, updateUserProfile, googleLoginUser };
+// ================= ADMIN STAFF MANAGEMENT =================
+const listStaffUsers = async (req, res) => {
+    try {
+        const users = await userModel
+            .find({ role: { $in: ADMIN_PANEL_ROLES } })
+            .sort({ createdAt: -1 })
+            .select("name username email role profileImage");
+
+        res.json({
+            success: true,
+            users: users.map((user) => ({
+                id: user._id,
+                name: user.name,
+                username: user.username,
+                email: user.email,
+                role: normalizeRole(user.role),
+                profileImage: getProfileImageUrl(user.profileImage),
+            })),
+        });
+    } catch (error) {
+        console.log(error);
+        res.json({ success: false, message: "Error" });
+    }
+}
+
+const createStaffUser = async (req, res) => {
+    try {
+        const { name, email, username, password, role } = req.body;
+
+        const normalizedName = (name || "").trim();
+        const normalizedEmail = (email || "").trim().toLowerCase();
+        const normalizedUsername = (username || "").trim().toLowerCase();
+        const normalizedRole = (role || "").trim().toLowerCase();
+
+        if (!normalizedName || !normalizedEmail || !normalizedUsername || !password || !normalizedRole) {
+            return res.json({ success: false, message: "Please fill all required fields" });
+        }
+
+        if (!STAFF_MANAGEABLE_ROLES.includes(normalizedRole)) {
+            return res.json({ success: false, message: "Invalid role" });
+        }
+
+        if (!validator.isEmail(normalizedEmail)) {
+            return res.json({ success: false, message: "Please enter a valid email" });
+        }
+
+        if (password.length < 6) {
+            return res.json({ success: false, message: "Password must be at least 6 characters" });
+        }
+
+        const exists = await userModel.findOne({
+            $or: [{ username: normalizedUsername }, { email: normalizedEmail }],
+        });
+
+        if (exists) {
+            return res.json({ success: false, message: "Username or email already exists" });
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        const user = await userModel.create({
+            name: normalizedName,
+            email: normalizedEmail,
+            username: normalizedUsername,
+            password: hashedPassword,
+            role: normalizedRole,
+        });
+
+        res.json({
+            success: true,
+            message: "Staff user created",
+            user: sanitizeUser(user),
+        });
+    } catch (error) {
+        console.log(error);
+        res.json({ success: false, message: "Error" });
+    }
+}
+
+const updateStaffUser = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { name, email, username, password, role } = req.body;
+
+        const user = await userModel.findById(id);
+        if (!user) {
+            return res.json({ success: false, message: "User not found" });
+        }
+
+        if (user.role === USER_ROLES.ADMIN) {
+            return res.json({ success: false, message: "Admin user cannot be modified from this endpoint" });
+        }
+
+        const normalizedRole = role ? role.trim().toLowerCase() : user.role;
+        if (!STAFF_MANAGEABLE_ROLES.includes(normalizedRole)) {
+            return res.json({ success: false, message: "Invalid role" });
+        }
+
+        if (name && name.trim()) {
+            user.name = name.trim();
+        }
+
+        if (username && username.trim()) {
+            const normalizedUsername = username.trim().toLowerCase();
+            const usernameExists = await userModel.findOne({
+                username: normalizedUsername,
+                _id: { $ne: id },
+            });
+
+            if (usernameExists) {
+                return res.json({ success: false, message: "Username already exists" });
+            }
+
+            user.username = normalizedUsername;
+        }
+
+        if (email && email.trim()) {
+            const normalizedEmail = email.trim().toLowerCase();
+
+            if (!validator.isEmail(normalizedEmail)) {
+                return res.json({ success: false, message: "Please enter a valid email" });
+            }
+
+            const emailExists = await userModel.findOne({
+                email: normalizedEmail,
+                _id: { $ne: id },
+            });
+
+            if (emailExists) {
+                return res.json({ success: false, message: "Email already exists" });
+            }
+
+            user.email = normalizedEmail;
+        }
+
+        if (password && password.trim()) {
+            if (password.trim().length < 6) {
+                return res.json({ success: false, message: "Password must be at least 6 characters" });
+            }
+
+            const salt = await bcrypt.genSalt(10);
+            user.password = await bcrypt.hash(password.trim(), salt);
+        }
+
+        user.role = normalizedRole;
+        await user.save();
+
+        res.json({
+            success: true,
+            message: "Staff user updated",
+            user: sanitizeUser(user),
+        });
+    } catch (error) {
+        console.log(error);
+        res.json({ success: false, message: "Error" });
+    }
+}
+
+const deleteStaffUser = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const user = await userModel.findById(id);
+
+        if (!user) {
+            return res.json({ success: false, message: "User not found" });
+        }
+
+        if (user.role === USER_ROLES.ADMIN) {
+            return res.json({ success: false, message: "Admin user cannot be deleted" });
+        }
+
+        await userModel.findByIdAndDelete(id);
+        res.json({ success: true, message: "Staff user deleted" });
+    } catch (error) {
+        console.log(error);
+        res.json({ success: false, message: "Error" });
+    }
+}
+
+export {
+    loginUser,
+    registerUser,
+    getUserProfile,
+    updateUserProfile,
+    googleLoginUser,
+    listStaffUsers,
+    createStaffUser,
+    updateStaffUser,
+    deleteStaffUser,
+};

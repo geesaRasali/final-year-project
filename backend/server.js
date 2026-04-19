@@ -2,12 +2,12 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import { connectDB } from "./config/db.js";
-import foodModel from "./models/foodModel.js";
 import foodRouter from "./routes/foodRoute.js";
 import userRouter from "./routes/userRouter.js";
 import cartRouter from "./routes/cartRoute.js";
 import orderRouter from "./routes/orderRoute.js";
 import chatRouter from "./routes/chatRoute.js";
+import { ensureInitialAdminUser } from "./utils/ensureAdminUser.js";
 
 //app config
 const app = express();
@@ -16,8 +16,6 @@ const port = 4000;
 // middleware
 app.use(express.json());
 app.use(cors());
-
-connectDB();
 
 //API endpoints
 app.use("/api/food", foodRouter);
@@ -31,6 +29,18 @@ app.get("/", (req, res) => {
   res.send("API Working");
 });
 
-app.listen(port, () => {
-  console.log(`Server Start on http://localhost:${port}`);
-});
+const startServer = async () => {
+  try {
+    await connectDB();
+    await ensureInitialAdminUser();
+
+    app.listen(port, () => {
+      console.log(`Server Start on http://localhost:${port}`);
+    });
+  } catch (error) {
+    console.error("Failed to start server:", error);
+    process.exit(1);
+  }
+};
+
+startServer();

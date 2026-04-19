@@ -1,0 +1,44 @@
+export const USER_ROLES = {
+  CUSTOMER: "customer",
+  ADMIN: "admin",
+  MANAGEMENT_STAFF: "management staff",
+  STOREKEEPER: "storekeeper",
+  KITCHEN_STAFF: "kitchen staff",
+  DELIVERY_STAFF: "delivery staff",
+  // Legacy value kept for backward compatibility with existing users.
+  STAFF: "staff",
+};
+
+export const ADMIN_PANEL_ROLES = [
+  USER_ROLES.ADMIN,
+  USER_ROLES.MANAGEMENT_STAFF,
+  USER_ROLES.STOREKEEPER,
+  USER_ROLES.KITCHEN_STAFF,
+  USER_ROLES.DELIVERY_STAFF,
+  USER_ROLES.STAFF,
+];
+
+export const STAFF_MANAGEABLE_ROLES = [
+  USER_ROLES.MANAGEMENT_STAFF,
+  USER_ROLES.STOREKEEPER,
+  USER_ROLES.KITCHEN_STAFF,
+  USER_ROLES.DELIVERY_STAFF,
+];
+
+export const FOOD_WRITE_ROLES = [
+  USER_ROLES.ADMIN,
+  USER_ROLES.MANAGEMENT_STAFF,
+  USER_ROLES.STOREKEEPER,
+];
+
+export const ORDER_VIEW_ROLES = [
+  USER_ROLES.ADMIN,
+  USER_ROLES.MANAGEMENT_STAFF,
+  USER_ROLES.KITCHEN_STAFF,
+  USER_ROLES.DELIVERY_STAFF,
+  USER_ROLES.STAFF,
+];
+
+export const ORDER_STATUS_UPDATE_ROLES = ORDER_VIEW_ROLES;
+
+export const DELIVERY_ALLOWED_STATUSES = ["Out for delivery", "Delivered"];
