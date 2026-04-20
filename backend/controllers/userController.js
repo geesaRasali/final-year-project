@@ -275,17 +275,21 @@ const registerUser = async (req, res) => {
             email: normalizedEmail,
             username: normalizedUsername,
             password: hashedPassword,
-                role: USER_ROLES.CUSTOMER
+            role: USER_ROLES.CUSTOMER
         });
 
         const user = await newUser.save();
 
-        sendCustomerRegistrationEmail({
-            name: user.name,
-            email: user.email,
-        }).catch((emailError) => {
+        let emailStatus = "sent";
+        try {
+            await sendCustomerRegistrationEmail({
+                name: user.name,
+                email: user.email,
+            });
+        } catch (emailError) {
+            emailStatus = `error: ${emailError?.message || emailError}`;
             console.error("Failed to send registration email:", emailError?.message || emailError);
-        });
+        }
 
         const token = createToken(user._id);
 
@@ -293,6 +297,7 @@ const registerUser = async (req, res) => {
             success: true,
             token,
             user: sanitizeUser(user),
+            emailStatus,
         });
 
     } catch (error) {
