@@ -2,6 +2,7 @@ import React, { useContext, useEffect } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { StoreContext } from '../../context/StoreContext'
 import axios from 'axios'
+import toast from 'react-hot-toast'
 
 const Verify = () => {
     const [searchParams] = useSearchParams();
@@ -23,14 +24,25 @@ const Verify = () => {
             });
             
             if (response.data.success) {
+                const emailStatus = response.data.emailStatus || "unknown";
+                if (emailStatus === "sent") {
+                    toast.success("Payment successful. Order placed. Confirmation email sent.");
+                } else if (emailStatus.startsWith("error:")) {
+                    toast.error(`Payment successful. Order placed. Email failed: ${emailStatus}`);
+                } else {
+                    toast.success("Payment successful. Order placed.");
+                }
+
                 setCartItems({});
                 localStorage.removeItem("cartItems");
                 navigate(`/success?orderId=${orderId}`);
             } else {
+                toast.error("Payment was not successful. Order not placed.");
                 navigate("/");
             }
         } catch (error) {
             console.log(error);
+            toast.error("Could not verify payment. Please contact support.");
             navigate("/");
         }
     }

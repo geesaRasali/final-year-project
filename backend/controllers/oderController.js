@@ -2,6 +2,7 @@ import orderModel from "../models/orderModel.js";
 import userModel from "../models/userModel.js";
 import Stripe from "stripe";
 import { DELIVERY_ALLOWED_STATUSES, USER_ROLES } from "../constants/roles.js";
+import { sendOrderSuccessEmail } from "../utils/loginEmail.js";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
@@ -83,11 +84,41 @@ const verifyOrder = async (req, res) => {
   const { orderId, success } = req.body;
   try {
     if (success == "true") {
-      await orderModel.findByIdAndUpdate(orderId, { payment: true });
-      res.json({ success: true, message: "paid" });
+      const order = await orderModel.findById(orderId);
+
+      if (!order) {
+        return res.json({ success: false, message: "Order not found" });
+      }
+
+      const alreadyPaid = Boolean(order.payment);
+      if (!alreadyPaid) {
+        await orderModel.findByIdAndUpdate(orderId, { payment: true });
+      }
+
+      let emailStatus = "skipped";
+      if (!alreadyPaid) {
+        try {
+          const customer = await userModel.findById(order.userId).select("name email");
+          const customerName = customer?.name || order.address?.firstName || "Customer";
+          const customerEmail = customer?.email || order.address?.email || "";
+
+          await sendOrderSuccessEmail({
+            name: customerName,
+            email: customerEmail,
+            orderId: order._id?.toString(),
+            amount: order.amount,
+          });
+          emailStatus = "sent";
+        } catch (emailError) {
+          emailStatus = `error: ${emailError?.message || emailError}`;
+          console.error("Failed to send order success email:", emailError?.message || emailError);
+        }
+      }
+
+      res.json({ success: true, message: "paid", emailStatus });
     } else {
       await orderModel.findByIdAndDelete(orderId);
-      res.json({ success: false, message: "Not Paid" });
+      res.json({ success: false, message: "Not Paid", emailStatus: "not-sent" });
     }
   } catch (error) {
     console.log(error);

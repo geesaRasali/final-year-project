@@ -16,6 +16,7 @@ import Chatbot from "./components/Chatbot/Chatbot";
 import Contact from "./components/Contact/Contact";
 import Context from "./pages/Context/Context";
 import EditProfile from "./pages/EditProfile/EditProfile";
+import { Toaster } from "react-hot-toast";
 const App = () => {
 
   const [showLogin, setShowLogin] = useState(false);
@@ -28,6 +29,7 @@ const App = () => {
   
   return (
     <div className="min-h-screen bg-(--app-bg) text-(--app-fg) transition-colors duration-300">
+      <Toaster position="top-right" toastOptions={{ duration: 3500 }} />
       <LoginPopup isOpen={showLogin} onClose={() => setShowLogin(false)} />
       <Navbar setShowLogin={setShowLogin} />
       <div className="app">
