@@ -12,9 +12,16 @@ const Cart = () => {
     url,
   } = useContext(StoreContext);
   const [quantityDrafts, setQuantityDrafts] = useState({});
+  const [quantityErrors, setQuantityErrors] = useState({});
+  const [checkoutError, setCheckoutError] = useState("");
+
+  const MIN_QTY = 0;
+  const MAX_QTY = 99;
 
   const subtotal = getTotalCartAmount();
-  const deliveryFee = subtotal === 0 ? 0 : 2;
+  const FREE_DELIVERY_THRESHOLD = 10000;
+  const deliveryFee =
+    subtotal === 0 ? 0 : subtotal > FREE_DELIVERY_THRESHOLD ? 0 : 2;
   const total = subtotal + deliveryFee;
   const cartRows = (food_list || []).filter((item) => cartItems[item._id] > 0);
 
@@ -22,7 +29,7 @@ const Cart = () => {
 
   const updateQuantity = async (itemId, targetQty) => {
     const currentQty = cartItems[itemId] || 0;
-    const nextQty = Math.max(0, Math.min(99, Number(targetQty) || 0));
+    const nextQty = Math.max(MIN_QTY, Math.min(MAX_QTY, Number(targetQty) || 0));
 
     if (nextQty === currentQty) return;
 
@@ -38,14 +45,30 @@ const Cart = () => {
   };
 
   const handleDraftChange = (itemId, value) => {
-    if (/^\d*$/.test(value)) {
-      setQuantityDrafts((prev) => ({ ...prev, [itemId]: value }));
+    if (!/^\d*$/.test(value)) {
+      setQuantityErrors((prev) => ({ ...prev, [itemId]: "Only numbers are allowed" }));
+      return;
     }
+
+    if (value !== "" && Number(value) > MAX_QTY) {
+      setQuantityErrors((prev) => ({ ...prev, [itemId]: `Maximum quantity is ${MAX_QTY}` }));
+    } else {
+      setQuantityErrors((prev) => ({ ...prev, [itemId]: "" }));
+    }
+
+    setQuantityDrafts((prev) => ({ ...prev, [itemId]: value }));
   };
 
   const commitDraft = async (itemId) => {
     const draftValue = quantityDrafts[itemId];
     if (draftValue === undefined) return;
+
+    if (draftValue !== "" && Number(draftValue) > MAX_QTY) {
+      setQuantityErrors((prev) => ({ ...prev, [itemId]: `Maximum quantity is ${MAX_QTY}` }));
+      return;
+    }
+
+    setQuantityErrors((prev) => ({ ...prev, [itemId]: "" }));
 
     await updateQuantity(itemId, draftValue === "" ? 0 : Number(draftValue));
 
@@ -54,6 +77,16 @@ const Cart = () => {
       delete next[itemId];
       return next;
     });
+  };
+
+  const handleProceedCheckout = () => {
+    if (subtotal <= 0) {
+      setCheckoutError("Your cart is empty. Add items before checkout.");
+      return;
+    }
+
+    setCheckoutError("");
+    navigate("/order");
   };
 
   return (
@@ -98,11 +131,14 @@ const Cart = () => {
                   />
                   <p className="self-center text-lg font-semibold text-zinc-900">{item.name}</p>
 
-                  <p className="text-sm text-zinc-700 md:text-base">${item.price}</p>
+                  <p className="text-sm text-zinc-700 md:text-base">LKR {item.price}</p>
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
-                      onClick={() => removeFromCart(item._id)}
+                      onClick={() => {
+                        setQuantityErrors((prev) => ({ ...prev, [item._id]: "" }));
+                        removeFromCart(item._id);
+                      }}
                       className="h-8 w-8 rounded-full bg-red-100 text-lg font-bold text-red-600 transition hover:bg-red-200"
                     >
                       -
@@ -112,24 +148,37 @@ const Cart = () => {
                       value={inputValue}
                       onChange={(event) => handleDraftChange(item._id, event.target.value)}
                       onBlur={() => commitDraft(item._id)}
+                      aria-invalid={Boolean(quantityErrors[item._id])}
                       onKeyDown={(event) => {
                         if (event.key === "Enter") {
                           event.preventDefault();
                           commitDraft(item._id);
                         }
                       }}
-                      className="h-8 w-12 rounded-md border border-zinc-300 bg-white text-center text-sm font-semibold text-zinc-800 outline-none transition focus:border-orange-500 focus:ring-2 focus:ring-orange-200"
+                      className={`h-8 w-12 rounded-md bg-white text-center text-sm font-semibold text-zinc-800 outline-none transition focus:ring-2 ${
+                        quantityErrors[item._id]
+                          ? "border border-red-400 focus:border-red-400 focus:ring-red-200"
+                          : "border border-zinc-300 focus:border-orange-500 focus:ring-orange-200"
+                      }`}
                     />
                     <button
                       type="button"
-                      onClick={() => addToCart(item._id)}
+                      onClick={() => {
+                        setQuantityErrors((prev) => ({ ...prev, [item._id]: "" }));
+                        addToCart(item._id);
+                      }}
                       className="h-8 w-8 rounded-full bg-green-100 text-lg font-bold text-green-600 transition hover:bg-green-200"
                     >
                       +
                     </button>
                   </div>
+                  {quantityErrors[item._id] ? (
+                    <p className="col-span-2 -mt-1 text-xs font-semibold text-red-600 md:col-start-4 md:col-span-1">
+                      {quantityErrors[item._id]}
+                    </p>
+                  ) : null}
                   <p className="text-sm font-semibold text-zinc-900 md:text-base">
-                    ${item.price * currentQty}
+                    LKR {item.price * currentQty}
                   </p>
 
                   <button
@@ -164,25 +213,26 @@ const Cart = () => {
           <h2 className="text-2xl font-bold text-zinc-900">Cart Totals</h2>
           <div className="mt-5 flex items-center justify-between text-zinc-600">
             <p>Subtotal</p>
-            <p>${subtotal}</p>
+            <p>LKR {subtotal}</p>
           </div>
           <div className="mt-3 flex items-center justify-between text-zinc-600">
             <p>Delivery Fee</p>
-            <p>${deliveryFee}</p>
+            <p>LKR {deliveryFee}</p>
           </div>
           <div className="my-4 h-px bg-zinc-200" />
           <div className="flex items-end justify-between text-zinc-900">
             <b className="text-lg">Total</b>
-            <b className="text-3xl leading-none">${total}</b>
+            <b className="text-3xl leading-none">LKR {total}</b>
           </div>
 
           <button
             type="button"
-            onClick={() => navigate("/order")}
+            onClick={handleProceedCheckout}
             className="mt-7 w-full rounded-xl bg-orange-500 px-5 py-3.5 text-base font-bold tracking-wide text-white shadow-[0_10px_20px_rgba(249,115,22,0.32)] transition duration-200 hover:scale-[1.02] hover:bg-orange-600 active:scale-[0.99] sm:w-max sm:min-w-56"
           >
             PROCEED TO CHECKOUT
           </button>
+          {checkoutError ? <p className="mt-3 text-sm font-semibold text-red-600">{checkoutError}</p> : null}
         </div>
 
         <div className="flex-1 rounded-2xl border border-orange-100 bg-white p-7 shadow-[0_8px_24px_rgba(15,23,42,0.06)]">

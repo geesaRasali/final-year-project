@@ -3,13 +3,14 @@ import { useNavigate } from 'react-router-dom'
 import { assets } from '../../assets/assets'
 import { StoreContext } from '../../context/StoreContext'
 import axios from 'axios'
-import { GoogleLogin } from '@react-oauth/google'
+import { GoogleLogin, googleLogout } from '@react-oauth/google'
 
 const LoginPopup = ({ setShowLogin, isOpen, onClose }) => {
   const navigate = useNavigate()
   const { url, setToken, setUser } = useContext(StoreContext)
   const hasGoogleClientId = Boolean((import.meta.env.VITE_GOOGLE_CLIENT_ID || '').trim())
   const [currState, SetCurrState] = useState('Sign Up')
+   const [signupType, setSignupType] = useState(null)
   const [googleError, setGoogleError] = useState('')
   const [data, setData] = useState({
     name: '',
@@ -30,6 +31,9 @@ const LoginPopup = ({ setShowLogin, isOpen, onClose }) => {
         if (!isOpen) {
           return
         }
+
+        // Clear cached Google session so user can pick the correct account.
+        googleLogout()
 
         SetCurrState('Login')
         setGoogleError('')
@@ -60,20 +64,39 @@ const LoginPopup = ({ setShowLogin, isOpen, onClose }) => {
       const submitButtonClasses = 'bg-linear-to-r from-orange-500 via-orange-500 to-amber-500 hover:from-orange-600 hover:via-orange-500 hover:to-amber-600 hover:shadow-[0_14px_28px_rgba(234,88,12,0.38)]'
       const fieldInputClasses = 'w-full rounded-2xl border border-zinc-200 bg-white px-5 py-3.5 text-base text-zinc-800 shadow-[0_8px_24px_rgba(0,0,0,0.04)] outline-none transition placeholder:text-zinc-400 focus:border-orange-400 focus:ring-4 focus:ring-orange-100'
 
-      const applyAuthSuccess = (responseUser, token) => {
-        const normalizedUser = {
+      const applyAuthSuccess = async (responseUser, token) => {
+        const fallbackUser = {
           ...responseUser,
           role: responseUser.role || 'customer',
         }
 
         setToken(token)
         localStorage.setItem('token', token)
-        setUser(normalizedUser)
-        localStorage.setItem('user', JSON.stringify(normalizedUser))
 
-        if (normalizedUser.role === 'admin') {
+        let finalUser = fallbackUser
+
+        try {
+          const profileResponse = await axios.get(`${url}/api/user/profile`, {
+            headers: { token },
+          })
+
+          if (profileResponse.data?.success && profileResponse.data?.user) {
+            finalUser = {
+              ...profileResponse.data.user,
+              role: profileResponse.data.user.role || 'customer',
+              avatar: responseUser.avatar || profileResponse.data.user.avatar,
+            }
+          }
+        } catch (error) {
+          console.error('Profile sync after login failed:', error)
+        }
+
+        setUser(finalUser)
+        localStorage.setItem('user', JSON.stringify(finalUser))
+
+        if (finalUser.role === 'admin') {
           navigate('/admin')
-        } else if (normalizedUser.role === 'staff') {
+        } else if (finalUser.role === 'staff') {
           navigate('/staff')
         } else {
           navigate('/')
@@ -109,7 +132,7 @@ const LoginPopup = ({ setShowLogin, isOpen, onClose }) => {
             return
           }
 
-          applyAuthSuccess(response.data.user, response.data.token)
+          await applyAuthSuccess(response.data.user, response.data.token)
         } catch (error) {
           console.error('Google login error:', error)
           setGoogleError('Google login failed. If Google shows "Error 401: deleted_client", replace VITE_GOOGLE_CLIENT_ID with a valid Google Web Client ID and restart the frontend.')
@@ -154,7 +177,7 @@ const LoginPopup = ({ setShowLogin, isOpen, onClose }) => {
               role: response.data.user.role || 'customer',
             };
 
-            applyAuthSuccess(normalizedUser, response.data.token)
+            await applyAuthSuccess(normalizedUser, response.data.token)
           } else {
             alert(response.data.message);
           }
@@ -330,6 +353,8 @@ const LoginPopup = ({ setShowLogin, isOpen, onClose }) => {
                       shape='pill'
                       text='continue_with'
                       width='320'
+                      useOneTap={false}
+                      auto_select={false}
                       onSuccess={onGoogleLoginSuccess}
                       onError={onGoogleLoginError}
                     />

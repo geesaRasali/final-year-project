@@ -126,7 +126,7 @@ const Add = ({ url, adminToken }) => {
                                 value={data.price}
                                 type='number'
                                 name='price'
-                                placeholder='$20'
+                                placeholder='LKR 20'
                                 min='0'
                                 step='0.01'
                                 required

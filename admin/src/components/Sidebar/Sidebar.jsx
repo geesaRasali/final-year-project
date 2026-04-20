@@ -1,38 +1,53 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
-import { assets } from "../../assets/assets";
-import { hasPermission, normalizeRole, ROLE_LABELS } from "../../config/rbac";
+import {
+  MdDashboard,
+  MdAddBox,
+  MdListAlt,
+  MdShoppingCart,
+  MdPeople,
+  MdMessage,
+} from "react-icons/md";
+import { hasPermission } from "../../config/rbac";
 
 const Sidebar = ({ adminUser }) => {
   const role = adminUser?.role;
-  const normalizedRole = normalizeRole(role);
-  const roleLabel = (ROLE_LABELS[normalizedRole] || normalizedRole || "Admin").toUpperCase();
-  const username = adminUser?.username || "admin";
 
   const menuItems = [
     hasPermission(role, "dashboard") && {
       to: "/",
-      icon: assets.order_icon,
+      icon: <MdDashboard />,
+      color: "#6366F1",
       label: "Dashboard",
     },
     hasPermission(role, "addFood") && {
       to: "/add",
-      icon: assets.add_icon,
+      icon: <MdAddBox />,
+      color: "#22C55E",
       label: "Add Items",
     },
     hasPermission(role, "listFood") && {
       to: "/list",
-      icon: assets.order_icon,
+      icon: <MdListAlt />,
+      color: "#0EA5E9",
       label: "List Items",
     },
     hasPermission(role, "orders") && {
       to: "/orders",
-      icon: assets.order_icon,
+      icon: <MdShoppingCart />,
+      color: "#F59E0B",
       label: "Orders",
+    },
+    hasPermission(role, "messages") && {
+      to: "/admin/messages",
+      icon: <MdMessage />,
+      color: "#EF4444",
+      label: "Customer Messages",
     },
     hasPermission(role, "staffUsers") && {
       to: "/staff-users",
-      icon: assets.order_icon,
+      icon: <MdPeople />,
+      color: "#EC4899",
       label: "Staff Users",
     },
   ].filter(Boolean);
@@ -40,10 +55,6 @@ const Sidebar = ({ adminUser }) => {
   return (
     <aside className="w-[18%] min-h-screen border border-zinc-300 border-t-0 bg-white text-zinc-600 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-300">
       <nav className="flex flex-col gap-5 pl-[20%] pt-12">
-        <div className="mb-1 rounded-l-sm border border-zinc-300 border-r-0 bg-zinc-50 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-900">
-          <p className="text-[11px] font-bold tracking-wide text-zinc-400">{roleLabel}</p>
-          <p className="text-lg font-extrabold leading-tight text-zinc-900 dark:text-zinc-100">{username}</p>
-        </div>
         {menuItems.map((item) => (
           <NavLink
             key={item.to}
@@ -56,7 +67,13 @@ const Sidebar = ({ adminUser }) => {
               }`
             }
           >
-            <img src={item.icon} alt="" className="h-5 w-5" />
+            <span
+              className="flex h-5 w-5 items-center justify-center text-xl"
+              style={{ color: item.color }}
+              aria-hidden="true"
+            >
+              {item.icon}
+            </span>
             <p className="text-[max(1vw,10px)] max-[900px]:hidden">{item.label}</p>
           </NavLink>
         ))}

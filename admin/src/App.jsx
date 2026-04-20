@@ -11,6 +11,7 @@ import Dashboard from './pages/Dashboard/Dashboard';
 import Login from './pages/Login/Login';
 import AccessDenied from './pages/AccessDenied/AccessDenied';
 import StaffUsers from './pages/StaffUsers/StaffUsers';
+import Messages from './pages/Messages/Messages';
 import { hasPermission, isAdminPanelRole, normalizeRole } from './config/rbac';
 
 const App = () => {
@@ -81,6 +82,7 @@ const App = () => {
   const canManageFood = hasPermission(adminUser?.role, 'addFood');
   const canListFood = hasPermission(adminUser?.role, 'listFood');
   const canManageOrders = hasPermission(adminUser?.role, 'orders');
+  const canViewMessages = hasPermission(adminUser?.role, 'messages');
   const canManageUsers = hasPermission(adminUser?.role, 'staffUsers');
 
   const defaultRoute = canViewDashboard
@@ -91,7 +93,9 @@ const App = () => {
         ? '/list'
         : canManageOrders
           ? '/orders'
-          : canManageUsers
+          : canViewMessages
+            ? '/admin/messages'
+            : canManageUsers
             ? '/staff-users'
             : '/access-denied';
 
@@ -113,6 +117,7 @@ const App = () => {
             <Route path="/add" element={canManageFood ? <Add url={url} adminToken={adminToken} /> : <Navigate to={defaultRoute} replace />} />
             <Route path="/list" element={canListFood ? <List url={url} adminToken={adminToken} /> : <Navigate to={defaultRoute} replace />} />
             <Route path="/orders" element={canManageOrders ? <Orders url={url} adminToken={adminToken} adminUser={adminUser} /> : <Navigate to={defaultRoute} replace />} />
+            <Route path="/admin/messages" element={canViewMessages ? <Messages url={url} adminToken={adminToken} /> : <Navigate to={defaultRoute} replace />} />
             <Route path="/staff-users" element={canManageUsers ? <StaffUsers url={url} adminToken={adminToken} /> : <Navigate to={defaultRoute} replace />} />
             <Route path="/access-denied" element={<AccessDenied />} />
             <Route path="*" element={<Navigate to={defaultRoute} replace />} />

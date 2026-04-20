@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
+import axios from "axios";
 import {
   FaEnvelope,
   FaPhoneAlt,
@@ -12,6 +13,7 @@ import {
   FaPaperPlane,
   FaHeadset,
 } from "react-icons/fa";
+import { StoreContext } from "../../context/StoreContext";
 
 const initialForm = {
   name: "",
@@ -21,22 +23,47 @@ const initialForm = {
 };
 
 const Contact = () => {
+  const { url } = useContext(StoreContext);
   const [formData, setFormData] = useState(initialForm);
   const [submitted, setSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    setSubmitted(true);
-    setFormData(initialForm);
 
-    setTimeout(() => {
-      setSubmitted(false);
-    }, 3000);
+    try {
+      setIsSubmitting(true);
+      setSubmitError("");
+
+      const response = await axios.post(`${url}/api/contact/submit`, {
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        message: formData.message,
+      });
+
+      if (!response.data?.success) {
+        setSubmitError(response.data?.message || "Failed to send message");
+        return;
+      }
+
+      setSubmitted(true);
+      setFormData(initialForm);
+
+      setTimeout(() => {
+        setSubmitted(false);
+      }, 3000);
+    } catch (error) {
+      setSubmitError(error?.response?.data?.message || "Failed to send message");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -76,6 +103,12 @@ const Contact = () => {
             {submitted && (
               <div className="mt-6 rounded-xl border border-orange-200 bg-orange-50 px-4 py-3 text-sm font-semibold text-orange-600">
                 Message sent successfully. We’ll contact you soon.
+              </div>
+            )}
+
+            {submitError && (
+              <div className="mt-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-600">
+                {submitError}
               </div>
             )}
 
@@ -123,9 +156,10 @@ const Contact = () => {
 
               <button
                 type="submit"
+                disabled={isSubmitting}
                 className="inline-flex items-center justify-center rounded-2xl bg-orange-500 px-7 py-3 text-sm font-bold text-white shadow-[0_12px_28px_rgba(249,115,22,0.22)] transition hover:-translate-y-0.5 hover:bg-orange-600"
               >
-                Send Message
+                {isSubmitting ? "Sending..." : "Send Message"}
               </button>
             </form>
           </div>

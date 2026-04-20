@@ -63,20 +63,8 @@ const Navbar = ({ adminUser, onLogout, isDarkMode, onToggleDarkMode }) => {
         </button>
         <div className="flex flex-col items-end">
           <span className="text-[11px] font-bold uppercase text-zinc-500 dark:text-zinc-400">{roleLabel}</span>
-          <span className="text-sm font-bold text-zinc-900 dark:text-zinc-100">{adminUser?.username || 'admin'}</span>
         </div>
-        <img
-          className="h-10 w-10 rounded-full bg-orange-500 object-cover"
-          src={displayImage}
-          alt="Admin profile"
-          onError={(event) => {
-            if (event.currentTarget.src !== fallbackImage) {
-              event.currentTarget.src = fallbackImage;
-              return;
-            }
-            event.currentTarget.src = assets.profile_image;
-          }}
-        />
+  
         <button
           type="button"
           onClick={onLogout}

@@ -67,9 +67,9 @@ const FoodItem = ({ item, quantity, onAdd, onRemove }) => {
 
         <div className="mt-3 flex items-center justify-between">
           <p
-            className={`${headingFontClass} text-[1.6rem] font-bold text-orange-500`}
+            className={`${headingFontClass} text-[1.25rem] font-bold text-orange-500 sm:text-[1.35rem]`}
           >
-            ${item.price}
+            LKR {item.price}
           </p>
 
           <span className="rounded-full bg-orange-50 px-2.5 py-1 text-xs font-semibold text-orange-500">

@@ -70,7 +70,7 @@ const Success = () => {
 									</div>
 									<div className="flex items-center justify-between py-1 text-zinc-700">
 										<span>Amount</span>
-										<span className="font-semibold">${order?.amount ?? "--"}</span>
+										<span className="font-semibold">LKR {order?.amount ?? "--"}</span>
 									</div>
 									<div className="flex items-center justify-between py-1 text-zinc-700">
 										<span>Status</span>

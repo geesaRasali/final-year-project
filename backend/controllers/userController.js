@@ -5,6 +5,7 @@ import validator from "validator"
 import crypto from "crypto"
 import { OAuth2Client } from "google-auth-library"
 import { ADMIN_PANEL_ROLES, STAFF_MANAGEABLE_ROLES, USER_ROLES } from "../constants/roles.js"
+import { sendCustomerRegistrationEmail } from "../utils/loginEmail.js";
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID)
 
@@ -222,6 +223,7 @@ const loginUser = async (req, res) => {
         }
 
         const token = createToken(user._id);
+
         res.json({
             success: true,
             token,
@@ -278,6 +280,13 @@ const registerUser = async (req, res) => {
 
         const user = await newUser.save();
 
+        sendCustomerRegistrationEmail({
+            name: user.name,
+            email: user.email,
+        }).catch((emailError) => {
+            console.error("Failed to send registration email:", emailError?.message || emailError);
+        });
+
         const token = createToken(user._id);
 
         res.json({
@@ -325,6 +334,8 @@ const googleLoginUser = async (req, res) => {
             return res.json({ success: false, message: "Google login is only available for customer accounts" });
         }
 
+        let createdNow = false;
+
         if (!user) {
             const username = await createUniqueUsername(name, email);
             const randomPassword = crypto.randomBytes(24).toString("hex");
@@ -340,9 +351,20 @@ const googleLoginUser = async (req, res) => {
             });
 
             user = await newUser.save();
+            createdNow = true;
         }
 
         const token = createToken(user._id);
+
+        if (createdNow && user.role === USER_ROLES.CUSTOMER) {
+            sendCustomerRegistrationEmail({
+                name: user.name,
+                email: user.email,
+            }).catch((emailError) => {
+                console.error("Failed to send registration email:", emailError?.message || emailError);
+            });
+        }
+
         return res.json({
             success: true,
             token,

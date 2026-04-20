@@ -31,28 +31,37 @@ const placeOrder = async (req, res) => {
     await newOrder.save();
     await userModel.findByIdAndUpdate(userId, { cartData: {} });
 
+    const subtotal = req.body.items.reduce(
+      (sum, item) => sum + Number(item.price || 0) * Number(item.quantity || 0),
+      0,
+    );
+    const freeDeliveryThreshold = 10000;
+    const deliveryFee = subtotal === 0 ? 0 : subtotal > freeDeliveryThreshold ? 0 : 2;
+
     const line_items = req.body.items.map((item) => ({
       price_data: {
         currency: "lkr",
         product_data: {
           name: item.name, // Product name
         },
-        unit_amount: item.price * 100 * 80, // Price in cents (Stripe requirement)
+        unit_amount: Number(item.price) * 100, // Price in cents (Stripe requirement)
       },
       quantity: item.quantity, // How many items
     }));
 
-    // Add delivery charges as separate line item
-    line_items.push({
-      price_data: {
-        currency: "lkr",
-        product_data: {
-          name: "Delivery Charges",
+    // Add delivery charges as separate line item only when applicable
+    if (deliveryFee > 0) {
+      line_items.push({
+        price_data: {
+          currency: "lkr",
+          product_data: {
+            name: "Delivery Charges",
+          },
+          unit_amount: deliveryFee * 100, // Delivery fee
         },
-        unit_amount: 2 * 100 * 80, // Delivery fee
-      },
-      quantity: 1,
-    });
+        quantity: 1,
+      });
+    }
 
     // Create Stripe checkout session
     const session = await stripe.checkout.sessions.create({

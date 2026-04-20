@@ -11,7 +11,7 @@ const FoodItem = ({ id, name, price, description, image }) => {
       : image;
 
   return (
-    <div className="w-full overflow-hidden rounded-3xl border border-[#f0e5db] bg-white shadow-[0_8px_22px_rgba(15,23,42,0.08)] transition duration-300 ease-out hover:-translate-y-1 hover:cursor-pointer hover:shadow-[0_18px_34px_rgba(249,115,22,0.17)]">
+    <div className="flex h-full w-full flex-col overflow-hidden rounded-3xl border border-[#f0e5db] bg-white shadow-[0_8px_22px_rgba(15,23,42,0.08)] transition duration-300 ease-out hover:-translate-y-1 hover:cursor-pointer hover:shadow-[0_18px_34px_rgba(249,115,22,0.17)]">
       <div className="relative m-2 aspect-[4/3] overflow-hidden rounded-[18px]">
         <img className="block h-full w-full object-cover" src={imageUrl} alt={name} />
 
@@ -41,13 +41,16 @@ const FoodItem = ({ id, name, price, description, image }) => {
         )}
       </div>
 
-      <div className="px-4 pb-4 pt-3">
+      <div className="flex flex-1 flex-col px-4 pb-4 pt-3">
         <div className="mb-2 flex items-start justify-between gap-2.5">
-          <p className="m-0 text-[22px] leading-[1.1] font-semibold text-slate-900">{name}</p>
+          <p className="m-0 line-clamp-2 min-h-[48px] text-[22px] leading-[1.1] font-semibold text-slate-900">{name}</p>
           <img className="mt-1 w-[68px]" src={assets.rating_starts} alt="Rating" />
         </div>
         <p className="m-0 line-clamp-2 text-[13px] leading-[1.5] text-slate-500">{description}</p>
-        <p className="mt-2.5 text-4xl font-bold text-orange-500">${price}</p>
+        <p className="mt-auto inline-flex items-end gap-2 rounded-lg  px-2.5 py-1.5 text-orange-600">
+          <span className="text-[10px] font-semibold uppercase tracking-[0.18em]">LKR</span>
+          <span className="text-3xl leading-none font-black">{price}</span>
+        </p>
       </div>
     </div>
   );

@@ -85,7 +85,7 @@ const MyOrders = () => {
                                     return item.name + " x " + item.quantity + ", ";
                                 }
                             })}</p>
-                            <p>${order.amount}.00</p>
+                            <p>LKR {order.amount}.00</p>
                             <p>Items: {order.items ? order.items.length : 0}</p>
                             <p><span className="text-[tomato]">&#x25cf;</span> <b className="font-medium text-[#454545]">{order.status || "Food Processing"}</b></p>
                             <button

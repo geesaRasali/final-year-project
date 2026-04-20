@@ -9,6 +9,8 @@ const TrueFocus = ({
   glowColor = "white",
   animationDuration = 0.5,
   pauseBetweenAnimations = 1,
+  containerClassName = "",
+  wordClassName = "",
 }) => {
   const words = sentence.split(" ");
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -73,7 +75,7 @@ const TrueFocus = ({
 
   return (
     <div
-      className="relative flex flex-wrap items-center justify-center gap-4"
+      className={`relative flex items-center justify-center gap-4 ${containerClassName}`}
       ref={containerRef}
     >
       {words.map((word, index) => {
@@ -82,7 +84,7 @@ const TrueFocus = ({
           <span
             key={index}
             ref={(el) => (wordRefs.current[index] = el)}
-            className="relative cursor-pointer text-4xl font-black text-black transition-[filter,color] duration-300 ease-in-out"
+            className={`relative cursor-pointer text-4xl font-black text-black transition-[filter,color] duration-300 ease-in-out ${wordClassName}`}
             style={{
               filter: manualMode
                 ? isActive

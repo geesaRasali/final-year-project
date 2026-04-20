@@ -53,7 +53,7 @@ const Context = () => {
 
           <div className="rounded-2xl border border-orange-200 bg-white p-5 shadow-sm">
             <p className="text-sm font-semibold uppercase text-zinc-500">Cart Total</p>
-            <p className="mt-2 text-xl font-bold text-zinc-900">Rs. {getTotalCartAmount()}</p>
+            <p className="mt-2 text-xl font-bold text-zinc-900">LKR {getTotalCartAmount()}</p>
           </div>
         </div>
 
@@ -78,8 +78,8 @@ const Context = () => {
                     <tr key={item.id} className="border-b border-orange-50 text-sm text-zinc-700">
                       <td className="py-3 pr-4">{item.name}</td>
                       <td className="py-3 pr-4">{item.qty}</td>
-                      <td className="py-3 pr-4">Rs. {item.price}</td>
-                      <td className="py-3">Rs. {item.price * item.qty}</td>
+                      <td className="py-3 pr-4">LKR {item.price}</td>
+                      <td className="py-3">LKR {item.price * item.qty}</td>
                     </tr>
                   ))}
                 </tbody>

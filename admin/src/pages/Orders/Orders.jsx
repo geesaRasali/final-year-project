@@ -85,7 +85,7 @@ const Orders = ({ url, adminToken, adminUser }) => {
               <p className='text-zinc-700'>{order.address.phone}</p>
             </div>
             <p className='font-medium text-zinc-700'>Items: {order.items.length}</p>
-            <p className='font-semibold text-zinc-900'>${order.amount}</p>
+            <p className='font-semibold text-zinc-900'>LKR {order.amount}</p>
             <select
               onChange={(event)=>statusHandler(event,order._id)}
               value={order.status}

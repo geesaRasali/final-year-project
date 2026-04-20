@@ -99,7 +99,7 @@ try {
   console.log(`✅ Successfully added ${result.length} food items to database!`);
   console.log("\nAdded foods:");
   result.forEach((food) => {
-    console.log(`- ${food.name} ($${food.price}) - ${food.category}`);
+    console.log(`- ${food.name} (LKR ${food.price}) - ${food.category}`);
   });
 
   console.log("\n🎉 Done! Now you can:");

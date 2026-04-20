@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { googleLogout } from '@react-oauth/google';
 import TrueFocus from './TrueFocus/TrueFocus';
 import { StoreContext } from '../../context/StoreContext';
 import { assets } from '../../assets/assets';
@@ -9,6 +10,7 @@ const Navbar = ({ onUserIconClick, setShowLogin }) => {
   const pathname = useLocation().pathname;
   const [cartCount] = useState(0);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isProfileImageBroken, setIsProfileImageBroken] = useState(false);
   const userMenuRef = useRef(null);
   const { token, user, setToken, setUser, setCartItems, url } = useContext(StoreContext);
 
@@ -24,6 +26,7 @@ const Navbar = ({ onUserIconClick, setShowLogin }) => {
   };
 
   const handleLogout = () => {
+    googleLogout();
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     localStorage.removeItem('cartItems');
@@ -59,14 +62,29 @@ const Navbar = ({ onUserIconClick, setShowLogin }) => {
 
   const profileImageSrc = (() => {
     const rawProfileImage = (user?.profileImage || '').trim();
-    if (rawProfileImage) {
+    const rawAvatar = (user?.avatar || '').trim();
+    const invalidProfileImageValues = new Set(['undefined', 'null', 'nan', '[object Object]']);
+    const isGoogleAvatar = /googleusercontent\.com|ggpht\.com/i.test(rawAvatar);
+
+    if (rawProfileImage && !invalidProfileImageValues.has(rawProfileImage.toLowerCase())) {
       if (rawProfileImage.startsWith('http://') || rawProfileImage.startsWith('https://')) {
         return rawProfileImage;
       }
       return `${url}${rawProfileImage}`;
     }
-    return user?.avatar || assets.profile_icon;
+
+    if (isGoogleAvatar) {
+      return rawAvatar;
+    }
+
+    return '';
   })();
+
+  const profileInitial = ((user?.name || user?.email || 'U').trim().charAt(0) || 'U').toUpperCase();
+
+  useEffect(() => {
+    setIsProfileImageBroken(false);
+  }, [profileImageSrc]);
 
   return (
     <nav className='sticky top-0 z-50 w-full border-b border-orange-300/30 bg-linear-to-r from-orange-600/90 via-amber-500/85 to-orange-400/80 shadow-[0_4px_24px_rgba(251,146,60,0.35)] backdrop-blur-lg'>
@@ -81,6 +99,8 @@ const Navbar = ({ onUserIconClick, setShowLogin }) => {
                 borderColor='#FDBA74'
                 animationDuration={2}
                 pauseBetweenAnimations={1}
+                containerClassName='gap-2 whitespace-nowrap'
+                wordClassName='text-2xl leading-none sm:text-3xl'
               />
             </div>
           </Link>
@@ -108,13 +128,22 @@ const Navbar = ({ onUserIconClick, setShowLogin }) => {
                   type='button'
                   onClick={() => setIsUserMenuOpen((prev) => !prev)}
                   title={user?.email || 'Customer'}
-                  className='rounded-full border border-white/60 bg-white/20 p-1.5 shadow-[0_2px_12px_rgba(0,0,0,0.15)] backdrop-blur-sm transition hover:bg-white/35'
+                  className='flex h-12 w-12 items-center justify-center rounded-full border border-white/60 bg-white/20 p-1.5 shadow-[0_2px_12px_rgba(0,0,0,0.15)] backdrop-blur-sm transition hover:bg-white/35'
                 >
-                  <img
-                    src={profileImageSrc}
-                    alt={user?.email || 'Customer profile'}
-                    className='h-9 w-9 rounded-full object-cover'
-                  />
+                  {profileImageSrc && !isProfileImageBroken ? (
+                    <img
+                      src={profileImageSrc}
+                      alt={user?.email || 'Customer profile'}
+                      className='h-9 w-9 rounded-full object-cover'
+                      onError={() => {
+                        setIsProfileImageBroken(true);
+                      }}
+                    />
+                  ) : (
+                    <span className='flex h-9 w-9 items-center justify-center rounded-full bg-orange-500 text-sm font-bold text-white'>
+                      {profileInitial}
+                    </span>
+                  )}
                 </button>
 
                 {isUserMenuOpen && (

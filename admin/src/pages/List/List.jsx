@@ -79,7 +79,7 @@ const List = ({url, adminToken}) => {
                        <img src={`${url}/images/`+item.image} alt='' className='h-14 w-14 rounded-lg object-cover' />
                        <p className='text-sm font-semibold text-zinc-800'>{item.name}</p>
                        <p className='text-sm text-zinc-600'>{item.category}</p>
-                       <p className='text-sm font-medium text-zinc-700'>${item.price}</p>
+                       <p className='text-sm font-medium text-zinc-700'>LKR {item.price}</p>
                        <button
                          type='button'
                          onClick={()=>removeFood(item._id)}
