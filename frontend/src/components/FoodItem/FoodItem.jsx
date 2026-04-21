@@ -3,7 +3,14 @@ import { assets } from "../../assets/assets";
 import { StoreContext } from "../../context/StoreContext";
 
 const FoodItem = ({ id, name, price, description, image }) => {
-  const { cartItems, addToCart, removeFromCart, url } = useContext(StoreContext);
+  const store = useContext(StoreContext) || {};
+  const {
+    cartItems = {},
+    addToCart = () => {},
+    removeFromCart = () => {},
+    url = "",
+  } = store;
+  const quantity = cartItems[id] ?? 0;
 
   const imageUrl =
     typeof image === "string" && !image.startsWith("data:") && !image.startsWith("http")
@@ -15,7 +22,7 @@ const FoodItem = ({ id, name, price, description, image }) => {
       <div className="relative m-2 aspect-[4/3] overflow-hidden rounded-[18px]">
         <img className="block h-full w-full object-cover" src={imageUrl} alt={name} />
 
-        {!cartItems[id] ? (
+        {!quantity ? (
           <img
             className="absolute bottom-4 right-4 w-[38px] cursor-pointer rounded-full shadow-[0_8px_18px_rgba(15,23,42,0.2)]"
             onClick={() => addToCart(id)}
@@ -30,7 +37,7 @@ const FoodItem = ({ id, name, price, description, image }) => {
               src={assets.remove_icon_red}
               alt="Remove"
             />
-            <p className="m-0 font-medium">{cartItems[id]}</p>
+            <p className="m-0 font-medium">{quantity}</p>
             <img
               className="w-[30px] cursor-pointer"
               onClick={() => addToCart(id)}
