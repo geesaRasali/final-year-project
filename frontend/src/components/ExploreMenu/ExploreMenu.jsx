@@ -7,7 +7,7 @@ const ExploreMenu = ({ category, setCategory }) => {
     <section id="explore-menu" className="mb-14 w-full">
       <div className="rounded-[30px] bg-[#f2f4f7] px-6 py-10 sm:px-8 lg:px-10">
         <div className="mb-10">
-          <h2 className="text-4xl font-extrabold leading-tight text-slate-900 sm:text-5xl lg:text-[56px]">
+          <h2 className="text-4xl font-extrabold leading-tight text-slate-900 sm:text-4xl lg:text-4xl">
             Explore our <span className="text-orange-500">menu</span>
           </h2>
           <p className="mt-4 max-w-6xl text-base leading-relaxed text-slate-600 sm:text-lg">

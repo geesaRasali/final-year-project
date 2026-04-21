@@ -100,7 +100,7 @@ const Navbar = ({ onUserIconClick, setShowLogin }) => {
                 animationDuration={2}
                 pauseBetweenAnimations={1}
                 containerClassName='gap-2 whitespace-nowrap'
-                wordClassName='text-2xl leading-none sm:text-3xl'
+                wordClassName='text-4xl leading-none'
               />
             </div>
           </Link>

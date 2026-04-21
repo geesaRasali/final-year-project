@@ -7,6 +7,7 @@ import TrueFocus from './TrueFocus/TrueFocus';
 const Navbar = ({ adminUser, onLogout, isDarkMode, onToggleDarkMode }) => {
   const normalizedRole = normalizeRole(adminUser?.role);
   const roleLabel = ROLE_LABELS[normalizedRole] || normalizedRole || 'Staff';
+  const displayName = (adminUser?.name || adminUser?.email || 'Staff').trim();
   const rawProfileImage = (adminUser?.profileImage || '').trim();
   const isAbsoluteProfileImage = rawProfileImage.startsWith('http://') || rawProfileImage.startsWith('https://');
   const isRelativeProfileImage = rawProfileImage.startsWith('/');
@@ -34,7 +35,7 @@ const Navbar = ({ adminUser, onLogout, isDarkMode, onToggleDarkMode }) => {
   const displayImage = resolvedProfileImage || fallbackImage;
 
   return (
-    <div className="flex items-center justify-between bg-white px-[4%] py-2 shadow-[0_2px_5px_rgba(0,0,0,0.1)] transition-colors dark:bg-zinc-900 dark:shadow-[0_2px_8px_rgba(0,0,0,0.45)]">
+    <div className="fixed top-0 right-0 left-0 z-40 flex h-16 items-center justify-between bg-white px-[4%] shadow-[0_2px_5px_rgba(0,0,0,0.1)] transition-colors dark:bg-zinc-900 dark:shadow-[0_2px_8px_rgba(0,0,0,0.45)]">
       <Link to='/' className='flex shrink-0 items-center'>
         <div className='navbar-logo'>
           <TrueFocus
@@ -61,8 +62,16 @@ const Navbar = ({ adminUser, onLogout, isDarkMode, onToggleDarkMode }) => {
             className="h-5 w-5"
           />
         </button>
-        <div className="flex flex-col items-end">
-          <span className="text-[11px] font-bold uppercase text-zinc-500 dark:text-zinc-400">{roleLabel}</span>
+        <div className="flex items-center gap-2 rounded-xl border border-zinc-200 bg-zinc-50 px-2 py-1.5 dark:border-zinc-700 dark:bg-zinc-800">
+          <img
+            src={displayImage}
+            alt={displayName}
+            className="h-8 w-8 rounded-full border border-zinc-200 object-cover dark:border-zinc-700"
+          />
+          <div className="hidden flex-col leading-tight sm:flex">
+            <span className="max-w-32 truncate text-xs font-bold text-zinc-700 dark:text-zinc-100">{displayName}</span>
+            <span className="text-[11px] font-bold uppercase text-zinc-500 dark:text-zinc-400">{roleLabel}</span>
+          </div>
         </div>
   
         <button

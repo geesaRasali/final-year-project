@@ -7,7 +7,7 @@ const FoodDisplay = ({ category }) => {
 
   return (
     <div className="mt-14" id="food-display">
-      <h2 className="text-[clamp(1.8rem,3.1vw,3.4rem)] font-extrabold leading-[1.12] tracking-[-0.02em] text-slate-900">
+      <h2 className="text-[clamp(1.5rem,2.4vw,2.6rem)] font-extrabold leading-[1.12] tracking-[-0.02em] text-slate-900">
         Top dishes <span className="text-orange-500">near you</span>
       </h2>
       <p className="mb-7 mt-2 text-[clamp(1rem,1.05vw,1.35rem)] font-medium text-slate-600">
