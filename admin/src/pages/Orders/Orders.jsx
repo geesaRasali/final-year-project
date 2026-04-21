@@ -89,10 +89,12 @@ const Orders = ({ url, adminToken, adminUser }) => {
             <select
               onChange={(event)=>statusHandler(event,order._id)}
               value={order.status}
-              className='w-full rounded-lg border border-orange-300 bg-orange-50 px-2.5 py-2 text-xs font-semibold text-orange-700 outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-100'
+              className='w-full rounded-lg border border-zinc-300 bg-white px-2.5 py-2 text-xs font-semibold text-zinc-700 outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-100'
             >
               {statusOptions.map((status) => (
-                <option key={status} value={status}>{status}</option>
+                <option key={status} value={status} className='bg-white text-zinc-700'>
+                  {status}
+                </option>
               ))}
             </select>
           </div>

@@ -53,8 +53,8 @@ const Sidebar = ({ adminUser }) => {
   ].filter(Boolean);
 
   return (
-    <aside className="w-[18%] min-h-screen border border-zinc-300 border-t-0 bg-white text-zinc-600 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-300">
-      <nav className="flex flex-col gap-5 pl-[20%] pt-12">
+    <aside className="fixed top-16 left-0 z-30 h-[calc(100vh-4rem)] w-[18%] overflow-y-auto border border-zinc-300 border-t-0 bg-white text-zinc-600 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-300">
+      <nav className="flex flex-col gap-5 pl-[20%] pt-12 pb-6">
         {menuItems.map((item) => (
           <NavLink
             key={item.to}

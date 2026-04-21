@@ -1,4 +1,5 @@
 import React from "react";
+import { assets } from "../../assets/assets";
 import {
   FaUtensils,
   FaCreditCard,
@@ -69,7 +70,15 @@ const stats = [
 const KeyFeatures = () => {
   return (
     <section className="bg-linear-to-b from-[#fff4e8] via-[#ffe8d1] to-[#ffd2a6]">
-      <div className="bg-linear-to-r from-[#ffedd5]/90 via-[#fed7aa]/85 to-[#fdba74]/80 py-20">
+      <div
+        className="bg-cover bg-center bg-no-repeat py-20"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(255, 247, 237, 0.9), rgba(255, 237, 213, 0.92)), url(" +
+            assets.ourservice +
+            ")",
+        }}
+      >
         <div className="mx-auto max-w-7xl px-6 text-center">
           <h2 className="text-4xl font-extrabold text-black sm:text-5xl">
             Designed to Elevate Your Online Food Ordering Experience

@@ -100,7 +100,7 @@ const App = () => {
             : '/access-denied';
 
   return (
-    <div className="min-h-screen bg-zinc-50 transition-colors dark:bg-zinc-900">
+    <div className="min-h-screen bg-zinc-50 pt-16 transition-colors dark:bg-zinc-900">
       <ToastContainer />
       <Navbar
         adminUser={adminUser}
@@ -108,10 +108,9 @@ const App = () => {
         isDarkMode={isDarkMode}
         onToggleDarkMode={() => setIsDarkMode((prev) => !prev)}
       />
-      <hr />
       <div className="flex">
         <Sidebar adminUser={adminUser} />
-        <div className="min-w-0 flex-1">
+        <div className="min-w-0 flex-1 ml-[18%]">
           <Routes>
             <Route path="/" element={canViewDashboard ? <Dashboard url={url} adminToken={adminToken} /> : <Navigate to={defaultRoute} replace />} />
             <Route path="/add" element={canManageFood ? <Add url={url} adminToken={adminToken} /> : <Navigate to={defaultRoute} replace />} />
