@@ -24,6 +24,20 @@ const App = () => {
   const hideFooter = pathname === "/contact";
 
   useEffect(() => {
+    if ("scrollRestoration" in window.history) {
+      const previousScrollRestoration = window.history.scrollRestoration;
+      window.history.scrollRestoration = "manual";
+      window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+
+      return () => {
+        window.history.scrollRestoration = previousScrollRestoration;
+      };
+    }
+
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, []);
+
+  useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: "auto" });
   }, [pathname]);
   
@@ -32,7 +46,7 @@ const App = () => {
       <Toaster position="top-right" toastOptions={{ duration: 3500 }} />
       <LoginPopup isOpen={showLogin} onClose={() => setShowLogin(false)} />
       <Navbar setShowLogin={setShowLogin} />
-      <div className="app">
+      <div className="app pt-24 md:pt-20">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/menu" element={<Menu />} />

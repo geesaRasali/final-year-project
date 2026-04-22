@@ -87,7 +87,7 @@ const Navbar = ({ onUserIconClick, setShowLogin }) => {
   }, [profileImageSrc]);
 
   return (
-    <nav className='sticky top-0 z-50 w-full border-b border-orange-300/30 bg-linear-to-r from-orange-600/90 via-amber-500/85 to-orange-400/80 shadow-[0_4px_24px_rgba(251,146,60,0.35)] backdrop-blur-lg'>
+    <nav className='fixed inset-x-0 top-0 z-50 w-full border-b border-orange-300/30 bg-linear-to-r from-orange-600/90 via-amber-500/85 to-orange-400/80 shadow-[0_4px_24px_rgba(251,146,60,0.35)] backdrop-blur-lg'>
       <div className='w-full px-4 sm:px-6 md:px-10 lg:px-14 xl:px-20'>
         <div className='flex h-20 items-center'>
           <Link to='/' className='flex shrink-0 items-center'>
