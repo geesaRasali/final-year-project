@@ -72,13 +72,10 @@ const List = ({ url, adminToken }) => {
 
             <div className='grid grid-cols-2 gap-2'>
               <div className='rounded-lg border border-zinc-200 bg-white px-3 py-1.5 dark:border-zinc-700 dark:bg-zinc-800'>
-                <p className='text-[10px] font-semibold uppercase tracking-wide text-zinc-400'>Total</p>
+                <p className='text-[12px] font-semibold uppercase tracking-wide text-zinc-400'>Total</p>
                 <p className='text-sm font-bold text-zinc-800 dark:text-zinc-100'>{list.length} items</p>
               </div>
-              <div className='rounded-lg border border-zinc-200 bg-white px-3 py-1.5 dark:border-zinc-700 dark:bg-zinc-800'>
-                <p className='text-[10px] font-semibold uppercase tracking-wide text-zinc-400'>Showing</p>
-                <p className='text-sm font-bold text-zinc-800 dark:text-zinc-100'>{filteredList.length} items</p>
-              </div>
+              
             </div>
           </div>
 
@@ -105,7 +102,7 @@ const List = ({ url, adminToken }) => {
           </div>
         ) : (
           <div className='overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-[0_10px_25px_rgba(15,23,42,0.06)] dark:border-zinc-700 dark:bg-zinc-900'>
-            <div className='hidden grid-cols-[72px_1.8fr_1fr_0.8fr_130px] items-center gap-3 border-b border-zinc-200 bg-zinc-50 px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-zinc-500 dark:border-zinc-700 dark:bg-zinc-800/70 dark:text-zinc-300 md:grid'>
+            <div className='hidden grid-cols-[72px_1.8fr_1fr_0.8fr_130px] items-center gap-3 border-b border-zinc-200 bg-zinc-50 px-4 py-3 text-[14 px] font-bold uppercase tracking-wider text-zinc-500 dark:border-zinc-700 dark:bg-zinc-800/70 dark:text-zinc-300 md:grid'>
               <span>Image</span>
               <span>Item</span>
               <span>Category</span>
@@ -127,8 +124,8 @@ const List = ({ url, adminToken }) => {
                     </div>
 
                     <div>
-                      <span className='inline-flex items-center gap-1 rounded-full bg-orange-100/70 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-orange-700 dark:bg-orange-500/15 dark:text-orange-300'>
-                        <FiTag size={11} />
+                      <span className='inline-flex items-center gap-1 rounded-full bg-orange-100/70 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-orange-700 dark:bg-orange-500/15 dark:text-orange-300'>
+                        <FiTag size={14} />
                         {item.category}
                       </span>
                     </div>
@@ -142,7 +139,7 @@ const List = ({ url, adminToken }) => {
                         className='mt-2 inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-red-50 px-3 py-2 text-xs font-bold text-red-600 transition hover:bg-red-500 hover:text-white md:mt-0 md:w-auto dark:bg-red-500/10 dark:text-red-400'
                       >
                         <FiTrash2 size={14} />
-                        Remove
+                        
                       </button>
                     </div>
                   </div>
