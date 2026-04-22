@@ -49,19 +49,43 @@ const Navbar = ({ adminUser, onLogout, isDarkMode, onToggleDarkMode }) => {
         </div>
       </Link>
       <div className="flex items-center gap-3">
-        <button
-          type="button"
-          onClick={onToggleDarkMode}
-          title={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
-          aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
-          className="rounded-lg border border-zinc-300 bg-zinc-50 p-2 transition hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:bg-zinc-700"
-        >
-          <img
-            src={isDarkMode ? assets.theme_sun : assets.theme_moon}
-            alt={isDarkMode ? 'Light mode icon' : 'Dark mode icon'}
-            className="h-5 w-5"
-          />
-        </button>
+<button
+  onClick={onToggleDarkMode}
+  className={`
+    relative w-16 h-8 flex items-center
+    rounded-full p-1 transition-all duration-500 ease-in-out
+    ${isDarkMode ? "bg-slate-800 ring-1 ring-slate-700" : "bg-orange-100 ring-1 ring-orange-200"}
+  `}
+>
+  {/* චලනය වන සුදු රවුම */}
+  <div
+    className={`
+      z-10 w-6 h-6 bg-white rounded-full shadow-lg
+      flex items-center justify-center
+      transition-all duration-500 ease-in-out
+      ${isDarkMode ? "translate-x-8 rotate-[360deg]" : "translate-x-0 rotate-0"}
+    `}
+  >
+    {isDarkMode ? (
+      /* Moon Icon (SVG) */
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="#1e293b" stroke="#1e293b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+      </svg>
+    ) : (
+      /* Sun Icon (SVG) */
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="#f97316" stroke="#f97316" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="4" />
+        <path d="M12 2v2" /><path d="M12 20v2" /><path d="m4.93 4.93 1.41 1.41" /><path d="m17.66 17.66 1.41 1.41" /><path d="M2 12h2" /><path d="M20 12h2" /><path d="m6.34 17.66-1.41 1.41" /><path d="m19.07 4.93-1.41 1.41" />
+      </svg>
+    )}
+  </div>
+
+  {/* Background එකේ තියෙන ලස්සන පොඩි විස්තර */}
+  <div className="absolute inset-0 flex justify-between items-center px-2">
+    <span className="text-[10px] opacity-20 select-none">☀️</span>
+    <span className="text-[10px] opacity-20 select-none">🌙</span>
+  </div>
+</button>
         <div className="flex items-center gap-2 rounded-xl border border-zinc-200 bg-zinc-50 px-2 py-1.5 dark:border-zinc-700 dark:bg-zinc-800">
           <img
             src={displayImage}
