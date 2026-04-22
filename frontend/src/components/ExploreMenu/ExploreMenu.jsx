@@ -10,14 +10,13 @@ const ExploreMenu = ({ category, setCategory }) => {
           <h2 className="text-4xl font-extrabold leading-tight text-slate-900 sm:text-4xl lg:text-4xl">
             Explore our <span className="text-orange-500">menu</span>
           </h2>
-          <p className="mt-4 max-w-6xl text-base leading-relaxed text-slate-600 sm:text-lg">
+          <p className="mt-4 max-w-7xl text-base leading-relaxed text-slate-600 sm:text-lg">
             Choose from a diverse menu featuring a delectable array of dishes.
             Our mission is to satisfy your cravings and elevate your dining
             experience, one delicious meal at a time.
           </p>
         </div>
-
-        <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8">
+        <div className="grid grid-cols-3 gap-x-1 gap-y-5 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-9 lg:gap-x-1 lg:gap-y-4">
           {menu_list.map((item) => {
             const isActive = category === item.menu_name;
             const menuImageSrc =
@@ -38,24 +37,24 @@ const ExploreMenu = ({ category, setCategory }) => {
                 className="group flex flex-col items-center text-center transition-all duration-300"
               >
                 <div
-                  className={`relative rounded-full border border-slate-200 bg-white p-1.5 transition-all duration-300 ${
+                  className={`relative rounded-full border border-slate-200 bg-white p-0.5 transition-all duration-300 ${
                     isActive
-                      ? "ring-4 ring-orange-500/80 shadow-[0_12px_30px_rgba(249,115,22,0.28)]"
-                      : "shadow-sm group-hover:-translate-y-1 group-hover:shadow-[0_12px_24px_rgba(15,23,42,0.12)]"
+                      ? "ring-3 ring-orange-500/80 shadow-[0_10px_24px_rgba(249,115,22,0.25)]"
+                      : "shadow-sm group-hover:-translate-y-1 group-hover:shadow-[0_10px_20px_rgba(15,23,42,0.12)]"
                   }`}
                 >
                   <div className="rounded-full bg-white p-0.5">
                     <img
                       src={menuImageSrc}
                       alt={item.menu_name}
-                      className="h-24 w-24 rounded-full object-cover sm:h-28 sm:w-28"
+                      className="h-22 w-22 rounded-full object-cover sm:h-30 sm:w-30 lg:h-30 lg:w-30"
                       loading="lazy"
                     />
                   </div>
                 </div>
 
                 <span
-                  className={`mt-4 text-base font-semibold transition-colors duration-300 ${
+                  className={`mt-1.5 text-sm font-bold transition-colors duration-300 sm:text-base lg:text-base ${
                     isActive
                       ? "text-orange-500"
                       : "text-slate-700 group-hover:text-orange-500"

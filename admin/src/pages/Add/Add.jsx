@@ -51,7 +51,7 @@ const Add = ({ url, adminToken }) => {
     return (
         <div className='min-h-screen bg-[#fcfcfc] p-4 md:p-10 dark:bg-zinc-950'>
             <div className='mx-auto max-w-5xl'>
-                {/* Header Section */}
+                {/* Header*/}
                 <div className='mb-8 flex flex-col md:flex-row md:items-center md:justify-between'>
                     <div>
                         <h1 className='text-3xl font-black tracking-tight text-zinc-900 dark:text-zinc-100'>
@@ -59,10 +59,7 @@ const Add = ({ url, adminToken }) => {
                         </h1>
                         <p className='text-zinc-500'>Add a new culinary masterpiece to your menu.</p>
                     </div>
-                    <div className='mt-4 flex items-center gap-2 rounded-full bg-emerald-50 px-4 py-2 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400 md:mt-0'>
-                        <div className='h-2 w-2 animate-pulse rounded-full bg-emerald-500'></div>
-                        <span className='text-xs font-bold uppercase'>System Ready</span>
-                    </div>
+                    
                 </div>
 
                 <form onSubmit={onSubmitHandler} className='grid grid-cols-1 gap-8 lg:grid-cols-12'>

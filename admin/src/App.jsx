@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Navbar from './components/Navbar/Navbar';
 import Sidebar from './components/Sidebar/Sidebar';
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 import Add from './pages/Add/Add';
 import List from './pages/List/List';
 import { ToastContainer } from 'react-toastify';
@@ -16,6 +16,7 @@ import { hasPermission, isAdminPanelRole, normalizeRole } from './config/rbac';
 
 const App = () => {
   const url = 'http://localhost:4000';
+  const navigate = useNavigate();
   const [adminToken, setAdminToken] = useState('');
   const [adminUser, setAdminUser] = useState(null);
   const [isDarkMode, setIsDarkMode] = useState(() => {
@@ -54,12 +55,23 @@ const App = () => {
     localStorage.setItem('adminTheme', isDarkMode ? 'dark' : 'light');
   }, [isDarkMode]);
 
+  const getDefaultRouteForRole = (role) => {
+    if (hasPermission(role, 'dashboard')) return '/';
+    if (hasPermission(role, 'addFood')) return '/add';
+    if (hasPermission(role, 'listFood')) return '/list';
+    if (hasPermission(role, 'orders')) return '/orders';
+    if (hasPermission(role, 'messages')) return '/admin/messages';
+    if (hasPermission(role, 'staffUsers')) return '/staff-users';
+    return '/access-denied';
+  };
+
   const handleAdminLogin = (token, user) => {
     const normalizedUser = { ...user, role: normalizeRole(user?.role) };
     setAdminToken(token);
     setAdminUser(normalizedUser);
     localStorage.setItem('adminToken', token);
     localStorage.setItem('adminUser', JSON.stringify(normalizedUser));
+    navigate(getDefaultRouteForRole(normalizedUser.role), { replace: true });
   };
 
   const handleLogout = () => {
@@ -67,6 +79,7 @@ const App = () => {
     setAdminUser(null);
     localStorage.removeItem('adminToken');
     localStorage.removeItem('adminUser');
+    navigate('/', { replace: true });
   };
 
   if (!adminToken || !isAdminPanelRole(adminUser?.role)) {
@@ -85,19 +98,7 @@ const App = () => {
   const canViewMessages = hasPermission(adminUser?.role, 'messages');
   const canManageUsers = hasPermission(adminUser?.role, 'staffUsers');
 
-  const defaultRoute = canViewDashboard
-    ? '/'
-    : canManageFood
-      ? '/add'
-      : canListFood
-        ? '/list'
-        : canManageOrders
-          ? '/orders'
-          : canViewMessages
-            ? '/admin/messages'
-            : canManageUsers
-            ? '/staff-users'
-            : '/access-denied';
+  const defaultRoute = getDefaultRouteForRole(adminUser?.role);
 
   return (
     <div className="min-h-screen bg-zinc-50 pt-16 transition-colors dark:bg-zinc-900">
