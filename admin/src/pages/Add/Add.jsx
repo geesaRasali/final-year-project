@@ -2,145 +2,161 @@ import React, { useState } from 'react'
 import { assets } from '../../assets/assets'
 import axios from 'axios'
 import { toast } from 'react-toastify'
+import { FiUpload, FiPlusCircle, FiInfo } from 'react-icons/fi'
+
+const categories = ['Salad', 'Rolls', 'Deserts', 'Sandwich', 'Cake', 'Pure Veg', 'Pasta', 'Noodles','Koththu']
 
 const Add = ({ url, adminToken }) => {
-
-    const [image, setImage] = useState(false);
+    const [image, setImage] = useState(false)
     const [data, setData] = useState({
-        name: "",
-        description: "",
-        price: "",
-        category: "Salad"
+        name: '',
+        description: '',
+        price: '',
+        category: 'Salad',
     })
 
     const onChangeHandler = (event) => {
-        const name = event.target.name;
-        const value = event.target.value;
-        setData(data => ({ ...data, [name]: value }))
+        const name = event.target.name
+        const value = event.target.value
+        setData((prev) => ({ ...prev, [name]: value }))
     }
 
     const onSubmitHandler = async (event) => {
-        event.preventDefault();
-        const formData = new FormData();
-        formData.append("name", data.name)
-        formData.append("description", data.description)
-        formData.append("price", Number(data.price))
-        formData.append("category", data.category)
-        formData.append("image", image)
+        event.preventDefault()
+        const formData = new FormData()
+        formData.append('name', data.name)
+        formData.append('description', data.description)
+        formData.append('price', Number(data.price))
+        formData.append('category', data.category)
+        formData.append('image', image)
 
-        const response = await axios.post(`${url}/api/food/add`, formData, {
-            headers: {
-                token: adminToken,
-                Authorization: `Bearer ${adminToken}`,
-            },
-        });
-        if (response.data.success) {
-            setData({
-                name: "",
-                description: "",
-                price: "",
-                category: "Salad"
+        try {
+            const response = await axios.post(`${url}/api/food/add`, formData, {
+                headers: { token: adminToken, Authorization: `Bearer ${adminToken}` },
             })
-            setImage(false)
-            toast.success(response.data.message)
-
+            if (response.data.success) {
+                setData({ name: '', description: '', price: '', category: 'Salad' })
+                setImage(false)
+                toast.success(response.data.message)
+            } else {
+                toast.error(response.data.message)
+            }
+        } catch (error) {
+            toast.error(error?.response?.data?.message || 'Failed to add item.')
         }
-        else {
-            toast.error(response.data.message)
-        }
-
     }
 
+    const previewImage = image ? URL.createObjectURL(image) : assets.upload_area
 
     return (
-        <div className='w-full px-4 py-6 md:px-8'>
-            <div className='mx-auto w-full max-w-4xl rounded-2xl border border-orange-100 bg-white p-5 shadow-sm md:p-7'>
-                <div className='mb-5'>
-                    <h2 className='text-2xl font-bold tracking-tight text-zinc-900'>Add Food Item</h2>
-                    <p className='mt-1 text-sm text-zinc-500'>Create a new menu item for your store.</p>
+        <div className='min-h-screen bg-[#fcfcfc] p-4 md:p-10 dark:bg-zinc-950'>
+            <div className='mx-auto max-w-5xl'>
+                {/* Header Section */}
+                <div className='mb-8 flex flex-col md:flex-row md:items-center md:justify-between'>
+                    <div>
+                        <h1 className='text-3xl font-black tracking-tight text-zinc-900 dark:text-zinc-100'>
+                            Inventory Manager
+                        </h1>
+                        <p className='text-zinc-500'>Add a new culinary masterpiece to your menu.</p>
+                    </div>
+                    <div className='mt-4 flex items-center gap-2 rounded-full bg-emerald-50 px-4 py-2 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400 md:mt-0'>
+                        <div className='h-2 w-2 animate-pulse rounded-full bg-emerald-500'></div>
+                        <span className='text-xs font-bold uppercase'>System Ready</span>
+                    </div>
                 </div>
 
-                <form className='flex flex-col gap-5' onSubmit={onSubmitHandler}>
-                    <div className='flex flex-col gap-2'>
-                        <p className='text-sm font-semibold text-zinc-700'>Upload Image</p>
-                        <label htmlFor='image' className='w-fit cursor-pointer'>
-                            <img
-                                src={image ? URL.createObjectURL(image) : assets.upload_area}
-                                alt='Upload preview'
-                                className='h-30 w-30 rounded-xl border border-zinc-200 object-cover'
-                            />
-                        </label>
-                        <input onChange={(e) => setImage(e.target.files[0])} type='file' id='image' hidden required />
+                <form onSubmit={onSubmitHandler} className='grid grid-cols-1 gap-8 lg:grid-cols-12'>
+                    {/* Left: Image Side */}
+                    <div className='lg:col-span-4'>
+                        <div className='sticky top-24 space-y-6 rounded-[2.5rem] bg-white p-6 shadow-[0_10px_40px_rgba(0,0,0,0.04)] dark:bg-zinc-900'>
+                            <p className='flex items-center gap-2 font-bold text-zinc-800 dark:text-zinc-200'>
+                                <FiUpload size={18} className='text-orange-500' />
+                                Product Image
+                            </p>
+                            <label htmlFor='image' className='group relative block aspect-square cursor-pointer overflow-hidden rounded-4xl border-2 border-dashed border-zinc-200 transition-all hover:border-orange-400 dark:border-zinc-800'>
+                                <img src={previewImage} className={`h-full w-full object-cover transition-transform duration-500 group-hover:scale-105 ${!image && 'p-10 opacity-30'}`} alt='Preview' />
+                                <div className='absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition group-hover:opacity-100'>
+                                    <p className='text-xs font-bold text-white'>CHANGE IMAGE</p>
+                                </div>
+                            </label>
+                            <input onChange={(e) => setImage(e.target.files[0])} type='file' id='image' hidden required />
+                            <div className='rounded-2xl bg-zinc-50 p-4 dark:bg-zinc-800/50'>
+                                <p className='flex items-start gap-2 text-xs leading-relaxed text-zinc-500'>
+                                    <FiInfo size={14} className='mt-0.5 shrink-0' />
+                                    Use a high-quality 1:1 square image to make your food look appetizing.
+                                </p>
+                            </div>
+                        </div>
                     </div>
 
-                    <div className='flex flex-col gap-2'>
-                        <p className='text-sm font-semibold text-zinc-700'>Product Name</p>
-                        <input
-                            onChange={onChangeHandler}
-                            value={data.name}
-                            type='text'
-                            name='name'
-                            placeholder='Type here'
-                            required
-                            className='w-full rounded-lg border border-zinc-300 px-3 py-2.5 outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-100'
-                        />
-                    </div>
+                    {/* Right: Content Side */}
+                    <div className='space-y-6 lg:col-span-8'>
+                        <div className='rounded-[2.5rem] bg-white p-8 shadow-[0_10px_40px_rgba(0,0,0,0.04)] dark:bg-zinc-900'>
+                            <div className='grid gap-6'>
+                                {/* Name Input */}
+                                <div className='space-y-2'>
+                                    <label className='ml-1 text-sm font-bold text-zinc-700 dark:text-zinc-300'>Dish Name</label>
+                                    <input
+                                        name='name'
+                                        onChange={onChangeHandler}
+                                        value={data.name}
+                                        className='w-full rounded-2xl bg-zinc-100/50 px-5 py-4 border-none outline-none transition focus:bg-white focus:ring-2 focus:ring-orange-400 dark:bg-zinc-800 dark:focus:bg-zinc-800/50'
+                                        placeholder='Ex: Creamy Alfredo Pasta'
+                                        required
+                                    />
+                                </div>
 
-                    <div className='flex flex-col gap-2'>
-                        <p className='text-sm font-semibold text-zinc-700'>Product Description</p>
-                        <textarea
-                            onChange={onChangeHandler}
-                            value={data.description}
-                            name='description'
-                            rows="6"
-                            placeholder='Write content here'
-                            required
-                            className='w-full rounded-lg border border-zinc-300 px-3 py-2.5 outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-100'
-                        />
-                    </div>
+                                {/* Description */}
+                                <div className='space-y-2'>
+                                    <label className='ml-1 text-sm font-bold text-zinc-700 dark:text-zinc-300'>Description</label>
+                                    <textarea
+                                        name='description'
+                                        onChange={onChangeHandler}
+                                        value={data.description}
+                                        rows='5'
+                                        className='w-full rounded-2xl bg-zinc-100/50 px-5 py-4 border-none outline-none transition focus:bg-white focus:ring-2 focus:ring-orange-400 dark:bg-zinc-800 dark:focus:bg-zinc-800/50 resize-none'
+                                        placeholder='Talk about the taste, secret spices, and serving size...'
+                                        required
+                                    />
+                                </div>
 
-                    <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
-                        <div className='flex flex-col gap-2'>
-                            <p className='text-sm font-semibold text-zinc-700'>Product Category</p>
-                            <select
-                                onChange={onChangeHandler}
-                                value={data.category}
-                                name='category'
-                                className='rounded-lg border border-zinc-300 px-3 py-2.5 outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-100'
+                                {/* Pricing & Category */}
+                                <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
+                                    <div className='space-y-2'>
+                                        <label className='ml-1 text-sm font-bold text-zinc-700 dark:text-zinc-300'>Category</label>
+                                        <select
+                                            name='category'
+                                            onChange={onChangeHandler}
+                                            value={data.category}
+                                            className='w-full rounded-2xl bg-zinc-100/50 px-5 py-4 border-none outline-none cursor-pointer focus:bg-white focus:ring-2 focus:ring-orange-400 dark:bg-zinc-800'
+                                        >
+                                            {categories.map((c) => <option key={c} value={c}>{c}</option>)}
+                                        </select>
+                                    </div>
+                                    <div className='space-y-2'>
+                                        <label className='ml-1 text-sm font-bold text-zinc-700 dark:text-zinc-300'>Price (LKR)</label>
+                                        <input
+                                            name='price'
+                                            type='number'
+                                            onChange={onChangeHandler}
+                                            value={data.price}
+                                            className='w-full rounded-2xl bg-zinc-100/50 px-5 py-4 border-none outline-none focus:bg-white focus:ring-2 focus:ring-orange-400 dark:bg-zinc-800'
+                                            placeholder='0.00'
+                                            required
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button
+                                type='submit'
+                                className='mt-10 flex w-full items-center justify-center gap-2 rounded-2xl bg-orange-500 py-5 text-lg font-black text-white shadow-xl shadow-orange-200 transition-all hover:bg-orange-600 hover:-translate-y-1 active:scale-95 dark:shadow-none'
                             >
-                                <option value="Salad">Salad</option>
-                                <option value="Rolls">Rolls</option>
-                                <option value="Deserts">Deserts</option>
-                                <option value="Sandwich">Sandwich</option>
-                                <option value="Cake">Cake</option>
-                                <option value="Pure Veg">Pure Veg</option>
-                                <option value="Pasta">Pasta</option>
-                                <option value="Noodles">Noodles</option>
-                            </select>
-                        </div>
-
-                        <div className='flex flex-col gap-2'>
-                            <p className='text-sm font-semibold text-zinc-700'>Product Price</p>
-                            <input
-                                onChange={onChangeHandler}
-                                value={data.price}
-                                type='number'
-                                name='price'
-                                placeholder='LKR 20'
-                                min='0'
-                                step='0.01'
-                                required
-                                className='rounded-lg border border-zinc-300 px-3 py-2.5 outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-100'
-                            />
+                                <FiPlusCircle size={20} />
+                                ADD FOOD ITEM
+                            </button>
                         </div>
                     </div>
-
-                    <button
-                        type='submit'
-                        className='mt-1 w-full rounded-lg bg-zinc-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-zinc-800 sm:w-44'
-                    >
-                        Add Item
-                    </button>
                 </form>
             </div>
         </div>

@@ -57,7 +57,7 @@ const Navbar = ({ adminUser, onLogout, isDarkMode, onToggleDarkMode }) => {
     ${isDarkMode ? "bg-slate-800 ring-1 ring-slate-700" : "bg-orange-100 ring-1 ring-orange-200"}
   `}
 >
-  {/* චලනය වන සුදු රවුම */}
+  {/* Round white circle */}
   <div
     className={`
       z-10 w-6 h-6 bg-white rounded-full shadow-lg
@@ -80,31 +80,34 @@ const Navbar = ({ adminUser, onLogout, isDarkMode, onToggleDarkMode }) => {
     )}
   </div>
 
-  {/* Background එකේ තියෙන ලස්සන පොඩි විස්තර */}
+  {/* Backgroun */}
   <div className="absolute inset-0 flex justify-between items-center px-2">
     <span className="text-[10px] opacity-20 select-none">☀️</span>
     <span className="text-[10px] opacity-20 select-none">🌙</span>
   </div>
 </button>
-        <div className="flex items-center gap-2 rounded-xl border border-zinc-200 bg-zinc-50 px-2 py-1.5 dark:border-zinc-700 dark:bg-zinc-800">
-          <img
-            src={displayImage}
-            alt={displayName}
-            className="h-8 w-8 rounded-full border border-zinc-200 object-cover dark:border-zinc-700"
-          />
-          <div className="hidden flex-col leading-tight sm:flex">
-            <span className="max-w-32 truncate text-xs font-bold text-zinc-700 dark:text-zinc-100">{displayName}</span>
-            <span className="text-[11px] font-bold uppercase text-zinc-500 dark:text-zinc-400">{roleLabel}</span>
-          </div>
-        </div>
+      
   
-        <button
-          type="button"
-          onClick={onLogout}
-          className="cursor-pointer rounded-lg border border-orange-300 bg-orange-50 px-3 py-2 font-bold text-orange-700 transition hover:bg-orange-100"
-        >
-          Logout
-        </button>
+<div className="flex justify-end">
+  <button
+    type="button"
+    onClick={onLogout}
+    className="
+      cursor-pointer
+      px-4 py-2.5
+      rounded-xl
+      font-bold
+      text-white
+      bg-gradient-to-r from-orange-500 to-red-500
+      shadow-md
+      transition-all duration-300
+      hover:scale-105 hover:shadow-lg
+      active:scale-95
+    "
+  >
+    Logout
+  </button>
+</div>
       </div>
     </div>
   );
