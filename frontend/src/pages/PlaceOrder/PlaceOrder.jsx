@@ -9,7 +9,8 @@ const PlaceOrder = () => {
    const navigate = useNavigate()
   const subtotal = getTotalCartAmount()
   const FREE_DELIVERY_THRESHOLD = 10000
-  const deliveryFee = subtotal === 0 ? 0 : subtotal > FREE_DELIVERY_THRESHOLD ? 0 : 2
+  const DELIVERY_FEE = 400
+  const deliveryFee = subtotal === 0 ? 0 : subtotal > FREE_DELIVERY_THRESHOLD ? 0 : DELIVERY_FEE
   const total = subtotal + deliveryFee
   const inputClass = 'w-full rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-zinc-800 outline-none transition placeholder:text-zinc-400 focus:border-orange-400 focus:ring-2 focus:ring-orange-100'
    

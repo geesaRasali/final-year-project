@@ -20,8 +20,9 @@ const Cart = () => {
 
   const subtotal = getTotalCartAmount();
   const FREE_DELIVERY_THRESHOLD = 10000;
+  const DELIVERY_FEE = 400;
   const deliveryFee =
-    subtotal === 0 ? 0 : subtotal > FREE_DELIVERY_THRESHOLD ? 0 : 2;
+    subtotal === 0 ? 0 : subtotal > FREE_DELIVERY_THRESHOLD ? 0 : DELIVERY_FEE;
   const total = subtotal + deliveryFee;
   const cartRows = (food_list || []).filter((item) => cartItems[item._id] > 0);
 

@@ -37,7 +37,8 @@ const placeOrder = async (req, res) => {
       0,
     );
     const freeDeliveryThreshold = 10000;
-    const deliveryFee = subtotal === 0 ? 0 : subtotal > freeDeliveryThreshold ? 0 : 2;
+    const deliveryFeeAmount = 400;
+    const deliveryFee = subtotal === 0 ? 0 : subtotal > freeDeliveryThreshold ? 0 : deliveryFeeAmount;
 
     const line_items = req.body.items.map((item) => ({
       price_data: {
