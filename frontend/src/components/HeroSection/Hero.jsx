@@ -58,7 +58,7 @@ const Hero = () => {
     <section className="flex flex-col w-full min-h-screen relative overflow-hidden bg-linear-to-r from-[#FFF7ED] via-[#FFE8D9] to-[#FB923C]">
       <div className="absolute inset-0 bg-linear-to-r from-white/40 to-transparent pointer-events-none z-0"></div>
 
-      {/* Promotional banner */}
+     
       <div className="relative z-30 w-full px-4 sm:px-6 md:px-14 lg:px-20 pt-4">
         <div className="max-w-7xl mx-auto bg-linear-to-r from-[#cf6b1d] via-[#7C4A1D] to-[#F97316] text-white text-center py-3 text-sm font-medium tracking-wide border border-orange-200 rounded-2xl shadow-[0_10px_24px_rgba(124,74,29,0.35)]">
           <span className="font-bold">
@@ -67,9 +67,8 @@ const Hero = () => {
         </div>
       </div>
 
-      {/* Main content wrapper */}
       <div className="relative z-10 flex flex-col md:flex-row md:items-start md:justify-between flex-1 px-6 md:px-14 lg:px-20 pt-8 md:pt-10 pb-10">
-        {/* Left section */}
+        
         <div className="w-full md:w-1/2 flex flex-col items-start justify-start max-w-[620px] pt-6">
           <div className="bg-white/80 text-[#F97316] px-4 py-2 rounded-full text-sm font-semibold mb-6 shadow-sm border border-orange-100 inline-block">
             Premium Quality
