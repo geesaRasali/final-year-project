@@ -64,7 +64,7 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Quick Links */}
+        
         <div>
           <h3 className="relative mb-6 inline-block pb-3 text-2xl font-bold tracking-tight text-slate-900">
             Quick Links
@@ -123,7 +123,6 @@ const Footer = () => {
           </ul>
         </div>
 
-        {/* Contact */}
         <div>
           <h3 className="relative mb-6 inline-block pb-3 text-2xl font-bold tracking-tight text-slate-900">
             Contact
@@ -172,7 +171,7 @@ const Footer = () => {
         </div>
       </div>
 
-      {/* Bottom */}
+     
       <div className="relative border-t border-amber-200/80 py-5 text-center text-lg font-bold text-slate-900">
         © 2026 Urban Foods. All rights reserved.
       </div>
