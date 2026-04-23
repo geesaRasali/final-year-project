@@ -20,7 +20,7 @@ const Footer = () => {
       <div className="pointer-events-none absolute -right-24 bottom-0 h-56 w-56 rounded-full bg-amber-200/30 blur-3xl" />
 
       <div className="relative mx-auto grid max-w-7xl grid-cols-1 gap-12 px-6 py-16 md:grid-cols-2 lg:grid-cols-[1.15fr_1fr_1fr_1fr]">
-        {/* Logo + About */}
+        
         <div className="flex flex-col items-start justify-start text-left lg:pl-0">
           <img
             src={assets.tomato}
