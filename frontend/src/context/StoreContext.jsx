@@ -9,36 +9,8 @@ const StoreContextProvider = (props) => {
   const [token, setToken] = useState("");
   const [user, setUser] = useState(null);
   const [foodList, setFoodList] = useState([]); // Start with empty array
+  const [tokenInitialized, setTokenInitialized] = useState(false);
   const url = "http://localhost:4000";
-
-  useEffect(() => {
-    const loadData = () => {
-      try {
-        const savedToken = localStorage.getItem("token");
-        const savedCart = localStorage.getItem("cartItems");
-        const savedUser = localStorage.getItem("user");
-
-        if (savedToken) {
-          setToken(savedToken);
-          if (savedCart) {
-            setCartItems(JSON.parse(savedCart));
-          }
-        } else {
-          setCartItems({});
-          localStorage.removeItem("cartItems");
-        }
-
-        if (savedUser) {
-          const parsedUser = JSON.parse(savedUser);
-          setUser({ ...parsedUser, role: parsedUser?.role || "customer" });
-        }
-      } catch (error) {
-        console.error("Error loading data from localStorage:", error);
-      }
-    };
-
-    loadData();
-  }, []);
 
   const addToCart = async (itemId) => {
     const updatedCart = !cartItems[itemId]
@@ -162,17 +134,31 @@ const StoreContextProvider = (props) => {
         if (!savedUser) {
           await loadUserProfile(savedToken);
         }
+      } else {
+        // No token - load cart from localStorage for guest users
+        try {
+          const savedCart = localStorage.getItem("cartItems");
+          if (savedCart) {
+            setCartItems(JSON.parse(savedCart));
+          }
+        } catch (e) {
+          console.error("Error loading guest cart:", e);
+        }
       }
+      // Mark token as initialized so the token watcher can safely clear cart on logout
+      setTokenInitialized(true);
     }
     loadData();
   }, []);
 
+  // Only clear cart when token is explicitly removed (after initialization),
+  // not on the initial render where token starts as ""
   useEffect(() => {
-    if (!token) {
+    if (tokenInitialized && !token) {
       setCartItems({});
       localStorage.removeItem("cartItems");
     }
-  }, [token]);
+  }, [token, tokenInitialized]);
 
   const contextValue = {
     food_list: foodList,
