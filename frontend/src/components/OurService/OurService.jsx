@@ -74,7 +74,7 @@ const KeyFeatures = () => {
         className="bg-cover bg-center bg-no-repeat py-20"
         style={{
           backgroundImage:
-            "linear-gradient(rgba(255, 247, 237, 0.9), rgba(255, 237, 213, 0.92)), url(" +
+            "linear-gradient(rgba(255, 247, 237, 0.9), rgba(255, 237, 213, 0.224)), url(" +
             assets.ourservice +
             ")",
         }}

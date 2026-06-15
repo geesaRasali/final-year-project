@@ -97,7 +97,7 @@ const Add = ({ url, adminToken }) => {
                                         name='name'
                                         onChange={onChangeHandler}
                                         value={data.name}
-                                        className='w-full rounded-2xl bg-zinc-100/50 px-5 py-4 border-none outline-none transition focus:bg-white focus:ring-2 focus:ring-orange-400 dark:bg-zinc-800 dark:focus:bg-zinc-800/50'
+                                        className='w-full rounded-2xl border-none bg-white px-5 py-4 text-zinc-900 outline-none transition placeholder:text-gray-400 focus:bg-orange focus:ring-2 focus:ring-orange-400 dark:bg-gray-800 dark:text-white dark:placeholder:text-gray-500 dark:focus:bg-gray-800'
                                         placeholder='Ex: Creamy Alfredo Pasta'
                                         required
                                     />
@@ -111,7 +111,7 @@ const Add = ({ url, adminToken }) => {
                                         onChange={onChangeHandler}
                                         value={data.description}
                                         rows='5'
-                                        className='w-full rounded-2xl bg-zinc-100/50 px-5 py-4 border-none outline-none transition focus:bg-white focus:ring-2 focus:ring-orange-400 dark:bg-zinc-800 dark:focus:bg-zinc-800/50 resize-none'
+                                        className='w-full rounded-2xl border-none bg-white px-5 py-4 text-zinc-900 outline-none transition placeholder:text-gray-400 focus:bg-white focus:ring-2 focus:ring-orange-400 dark:bg-gray-800 dark:text-white dark:placeholder:text-gray-500 dark:focus:bg-gray-800 resize-none'
                                         placeholder='Talk about the taste, secret spices, and serving size...'
                                         required
                                     />
@@ -125,9 +125,13 @@ const Add = ({ url, adminToken }) => {
                                             name='category'
                                             onChange={onChangeHandler}
                                             value={data.category}
-                                            className='w-full rounded-2xl bg-zinc-100/50 px-5 py-4 border-none outline-none cursor-pointer focus:bg-white focus:ring-2 focus:ring-orange-400 dark:bg-zinc-800'
+                                            className='w-full cursor-pointer rounded-2xl border-none bg-white px-5 py-4 text-zinc-900 outline-none transition focus:bg-white focus:ring-2 focus:ring-orange-400 dark:bg-gray-800 dark:text-white dark:focus:bg-gray-800'
                                         >
-                                            {categories.map((c) => <option key={c} value={c}>{c}</option>)}
+                                            {categories.map((c) => (
+                                                <option key={c} value={c} className='bg-white text-zinc-900 dark:bg-gray-800 dark:text-gray-200'>
+                                                    {c}
+                                                </option>
+                                            ))}
                                         </select>
                                     </div>
                                     <div className='space-y-2'>
@@ -137,7 +141,7 @@ const Add = ({ url, adminToken }) => {
                                             type='number'
                                             onChange={onChangeHandler}
                                             value={data.price}
-                                            className='w-full rounded-2xl bg-zinc-100/50 px-5 py-4 border-none outline-none focus:bg-white focus:ring-2 focus:ring-orange-400 dark:bg-zinc-800'
+                                            className='w-full rounded-2xl border-none bg-white px-5 py-4 text-zinc-900 outline-none transition placeholder:text-gray-400 focus:bg-white focus:ring-2 focus:ring-orange-400 dark:bg-gray-800 dark:text-white dark:placeholder:text-gray-500 dark:focus:bg-gray-800'
                                             placeholder='0.00'
                                             required
                                         />

@@ -96,10 +96,10 @@ const Dashboard = ({ url, adminToken }) => {
   const summary = useMemo(() => {
     const weekOrders = weeklyData.reduce((sum, day) => sum + day.orders, 0);
     const weekRevenue = weeklyData.reduce((sum, day) => sum + day.amount, 0);
-    const newOrders = orders.filter(
+    const foodprocessing = orders.filter(
       (order) => normalizeStatus(order.status || 'Food Processing') === 'food processing',
     ).length;
-    const onDelivery = orders.filter(
+    const outofdelivery = orders.filter(
       (order) => normalizeStatus(order.status) === 'out for delivery',
     ).length;
     const delivered = orders.filter(
@@ -112,8 +112,8 @@ const Dashboard = ({ url, adminToken }) => {
     return {
       weekOrders,
       weekRevenue,
-      newOrders,
-      onDelivery,
+      foodprocessing,
+      outofdelivery,
       delivered,
       canceled,
       totalOrders: orders.length,
@@ -176,15 +176,17 @@ const Dashboard = ({ url, adminToken }) => {
   const incomeAreaPath = buildAreaPath(incomePoints);
   const expenseAreaPath = buildAreaPath(expensePoints);
 
-  const totalStatusCount = summary.onDelivery + summary.delivered + summary.canceled;
-  const onDeliveryPercent = totalStatusCount ? (summary.onDelivery / totalStatusCount) * 100 : 0;
+  const totalStatusCount = summary.foodprocessing + summary.outofdelivery + summary.delivered;
+  const foodProcessingPercent = totalStatusCount ? (summary.foodprocessing / totalStatusCount) * 100 : 0;
+  const onDeliveryPercent = totalStatusCount ? (summary.outofdelivery / totalStatusCount) * 100 : 0;
   const deliveredPercent = totalStatusCount ? (summary.delivered / totalStatusCount) * 100 : 0;
+  const deliveredEndPercent = foodProcessingPercent + onDeliveryPercent + deliveredPercent;
 
   const donutTrack = totalStatusCount
-    ? `conic-gradient(#f97316 0 ${onDeliveryPercent}%, #22c55e ${onDeliveryPercent}% ${onDeliveryPercent + deliveredPercent}%, #374151 ${onDeliveryPercent + deliveredPercent}% 100%)`
+    ? `conic-gradient(#f97316 0 ${foodProcessingPercent}%, #10b981 ${foodProcessingPercent}% ${foodProcessingPercent + onDeliveryPercent}%, #52525b ${foodProcessingPercent + onDeliveryPercent}% ${deliveredEndPercent}%)`
     : 'conic-gradient(#d4d4d8 0 100%)';
 
-  const maxStatusBar = Math.max(summary.onDelivery, summary.delivered, summary.canceled, 1);
+  const maxStatusBar = Math.max(totalStatusCount, 1);
 
   const formatShortMoney = (value) =>
     new Intl.NumberFormat('en-LK', {
@@ -252,8 +254,8 @@ const Dashboard = ({ url, adminToken }) => {
 
               <div className='mb-4 flex items-center justify-between rounded-xl bg-emerald-50 px-4 py-3 dark:bg-emerald-500/10'>
                 <div className='flex items-center gap-2'>
-                  <span className='inline-flex min-w-8 justify-center rounded-md bg-emerald-500 px-2 py-1 text-sm font-bold text-white'>
-                    {summary.newOrders}
+                  <span className='inline-flex min-w-8 justify-center rounded-md bg-emerald-400 px-2 py-1 text-sm font-bold text-white'>
+                    {summary.foodprocessing}
                   </span>
                   <p className='text-sm font-semibold text-emerald-800 dark:text-emerald-300'>New Orders</p>
                 </div>
@@ -266,18 +268,20 @@ const Dashboard = ({ url, adminToken }) => {
                 </button>
               </div>
 
-              <div className='grid grid-cols-3 divide-x divide-zinc-200 rounded-xl border border-zinc-200 bg-white dark:divide-zinc-700 dark:border-zinc-700 dark:bg-zinc-900'>
-                <div className='p-5'>
-                  <p className='text-2xl font-bold text-zinc-900 dark:text-zinc-100'>{summary.newOrders}</p>
-                  <p className='text-xs text-zinc-500 dark:text-zinc-400'>Food Processing</p>
-                </div>
-                <div className='p-5'>
-                  <p className='text-2xl font-bold text-zinc-900 dark:text-zinc-100'>{summary.onDelivery}</p>
-                  <p className='text-xs text-zinc-500 dark:text-zinc-400'>Out for Delivery</p>
-                </div>
-                <div className='p-5'>
-                  <p className='text-2xl font-bold text-zinc-900 dark:text-zinc-100'>{summary.delivered}</p>
-                  <p className='text-xs text-zinc-500 dark:text-zinc-400'>Delivered</p>
+              <div className='rounded-xl border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900'>
+                <div className='grid grid-cols-3 divide-x divide-zinc-200 dark:divide-zinc-700'>
+                  <div className='p-5 text-center'>
+                    <p className='text-3xl font-extrabold text-orange-600 dark:text-orange-400'>{summary.foodprocessing}</p>
+                    <p className='mt-1 text-xs font-medium text-zinc-600 dark:text-zinc-400'>Food Processing</p>
+                  </div>
+                  <div className='p-5 text-center'>
+                    <p className='text-3xl font-extrabold text-emerald-500 dark:text-emerald-400'>{summary.outofdelivery}</p>
+                    <p className='mt-1 text-xs font-medium text-zinc-600 dark:text-zinc-400'>Out for Delivery</p>
+                  </div>
+                  <div className='p-5 text-center'>
+                    <p className='text-3xl font-extrabold text-zinc-700 dark:text-zinc-400'>{summary.delivered}</p>
+                    <p className='mt-1 text-xs font-medium text-zinc-600 dark:text-zinc-400'>Delivered</p>
+                  </div>
                 </div>
               </div>
 
@@ -288,8 +292,8 @@ const Dashboard = ({ url, adminToken }) => {
 
                 <div className='space-y-3'>
                   {[
-                    { label: 'Food Processing', value: summary.newOrders, color: 'bg-orange-500' },
-                    { label: 'Out for Delivery', value: summary.onDelivery, color: 'bg-emerald-500' },
+                    { label: 'Food Processing', value: summary.foodprocessing, color: 'bg-orange-500' },
+                    { label: 'Out for Delivery', value: summary.outofdelivery, color: 'bg-emerald-500' },
                     { label: 'Delivered', value: summary.delivered, color: 'bg-zinc-700 dark:bg-zinc-400' },
                   ].map((item) => (
                     <div key={item.label} className='grid grid-cols-[90px_minmax(0,1fr)_28px] items-center gap-2 text-xs'>
