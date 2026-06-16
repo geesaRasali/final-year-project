@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import axios from 'axios'
 import { toast } from 'react-toastify'
-import { FiPackage, FiSearch, FiTag, FiTrash2 } from 'react-icons/fi'
+import { FiPackage, FiSearch, FiTag, FiTrash2, FiEdit } from 'react-icons/fi'
 
 const List = ({ url, adminToken }) => {
   const [list, setList] = useState([])
@@ -138,6 +138,11 @@ const List = ({ url, adminToken }) => {
                         onClick={() => removeFood(item._id)}
                         className='mt-2 inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-red-50 px-3 py-2 text-xs font-bold text-red-600 transition hover:bg-red-500 hover:text-white md:mt-0 md:w-auto dark:bg-red-500/10 dark:text-red-400'
                       >
+                          <button
+                        type='button'
+                        onClick={() => EditFood(item._id)}
+                        className='mt-2 inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-red-50 px-3 py-2 text-xs font-bold text-red-600 transition hover:bg-red-500 hover:text-white md:mt-0 md:w-auto dark:bg-red-500/10 dark:text-red-400'
+                      ></button>
                         <FiTrash2 size={14} />
                         
                       </button>

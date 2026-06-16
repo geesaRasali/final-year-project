@@ -2,6 +2,7 @@ import express from "express";
 import multer from "multer";
 import {
   addFood,
+  updateFood,
   listFood,
   removeFood,
 } from "../controllers/foodController.js";
@@ -23,6 +24,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 foodRouter.post("/add", authMiddleware, requireRoles(...FOOD_WRITE_ROLES), upload.single("image"), addFood);
+foodRouter.post("/update", authMiddleware, requireRoles(...FOOD_WRITE_ROLES), upload.single("image"), updateFood);
 foodRouter.get("/list", listFood);
 foodRouter.post("/remove", authMiddleware, requireRoles(...FOOD_WRITE_ROLES), removeFood);
 

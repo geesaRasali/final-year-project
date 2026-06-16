@@ -1,19 +1,34 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { assets } from '../../assets/assets'
 import axios from 'axios'
 import { toast } from 'react-toastify'
 import { FiUpload, FiPlusCircle, FiInfo } from 'react-icons/fi'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 const categories = ['Salad', 'Rolls', 'Deserts', 'Sandwich', 'Cake', 'Pure Veg', 'Pasta', 'Noodles','Koththu']
 
 const Add = ({ url, adminToken }) => {
     const [image, setImage] = useState(false)
+    const location = useLocation()
+    const navigate = useNavigate()
+    const editingFood = location.state?.food || null
     const [data, setData] = useState({
         name: '',
         description: '',
         price: '',
         category: 'Salad',
     })
+
+    useEffect(() => {
+        if (editingFood) {
+            setData({
+                name: editingFood.name || '',
+                description: editingFood.description || '',
+                price: editingFood.price ?? '',
+                category: editingFood.category || 'Salad',
+            })
+        }
+    }, [editingFood])
 
     const onChangeHandler = (event) => {
         const name = event.target.name
@@ -28,21 +43,30 @@ const Add = ({ url, adminToken }) => {
         formData.append('description', data.description)
         formData.append('price', Number(data.price))
         formData.append('category', data.category)
-        formData.append('image', image)
+        if (image) {
+            formData.append('image', image)
+        }
 
         try {
-            const response = await axios.post(`${url}/api/food/add`, formData, {
+            const endpoint = editingFood ? `${url}/api/food/update` : `${url}/api/food/add`
+            if (editingFood) {
+                formData.append('id', editingFood._id)
+            }
+
+            const response = await axios.post(endpoint, formData, {
                 headers: { token: adminToken, Authorization: `Bearer ${adminToken}` },
             })
             if (response.data.success) {
                 setData({ name: '', description: '', price: '', category: 'Salad' })
                 setImage(false)
                 toast.success(response.data.message)
+                navigate('/list')
             } else {
-                toast.error(response.data.message)
+                toast.error(response.data.message || 'Failed to add item.')
             }
         } catch (error) {
-            toast.error(error?.response?.data?.message || 'Failed to add item.')
+            const message = error?.response?.data?.message || error?.message || 'Failed to add item.'
+            toast.error(message)
         }
     }
 
@@ -97,7 +121,7 @@ const Add = ({ url, adminToken }) => {
                                         name='name'
                                         onChange={onChangeHandler}
                                         value={data.name}
-                                        className='w-full rounded-2xl border-none bg-white px-5 py-4 text-zinc-900 outline-none transition placeholder:text-gray-400 focus:bg-orange focus:ring-2 focus:ring-orange-400 dark:bg-gray-800 dark:text-white dark:placeholder:text-gray-500 dark:focus:bg-gray-800'
+                                        className='w-full rounded-2xl border-none bg-white px-5 py-4 text-zinc-900 outline-none transition placeholder:text-gray-400 focus:bg-white focus:ring-2 focus:ring-orange-400 dark:bg-gray-800 dark:text-white dark:placeholder:text-gray-500 dark:focus:bg-gray-800'
                                         placeholder='Ex: Creamy Alfredo Pasta'
                                         required
                                     />
@@ -154,7 +178,7 @@ const Add = ({ url, adminToken }) => {
                                 className='mt-10 flex w-full items-center justify-center gap-2 rounded-2xl bg-orange-500 py-5 text-lg font-black text-white shadow-xl shadow-orange-200 transition-all hover:bg-orange-600 hover:-translate-y-1 active:scale-95 dark:shadow-none'
                             >
                                 <FiPlusCircle size={20} />
-                                ADD FOOD ITEM
+                                {editingFood ? 'UPDATE FOOD ITEM' : 'ADD FOOD ITEM'}
                             </button>
                         </div>
                     </div>

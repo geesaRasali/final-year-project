@@ -2,7 +2,6 @@ import foodModel from "../models/foodModel.js";
 import fs from "fs";
 import path from "path";
 
-// Food categories as shown in your image
 const foodCategories = [
   { name: "Salad", image: "salad.png" },
   { name: "Rolls", image: "rolls.png" },
@@ -14,7 +13,7 @@ const foodCategories = [
   { name: "Noodles", image: "noodles.png" },
 ];
 
-// Sample food data - replace with your actual database model later
+
 const foodData = [
   {
     _id: "1",
@@ -150,6 +149,45 @@ const listFood = async (req, res) => {
   }
 };
 
+// update food item
+const updateFood = async (req, res) => {
+  try {
+    const foodId = req.body.id || req.body._id;
+
+    if (!foodId) {
+      return res.json({ success: false, message: "Food id is required" });
+    }
+
+    const existingFood = await foodModel.findById(foodId);
+
+    if (!existingFood) {
+      return res.json({ success: false, message: "Food not found" });
+    }
+
+    const updatedFoodData = {
+      name: req.body.name ?? existingFood.name,
+      description: req.body.description ?? existingFood.description,
+      price: req.body.price ?? existingFood.price,
+      category: req.body.category ?? existingFood.category,
+    };
+
+    if (req.file) {
+      fs.unlink(`images/${existingFood.image}`, () => {});
+      updatedFoodData.image = req.file.filename;
+    }
+
+    const updatedFood = await foodModel.findByIdAndUpdate(foodId, updatedFoodData, {
+      new: true,
+      runValidators: true,
+    });
+
+    res.json({ success: true, message: "Food Updated", data: updatedFood });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: "Error" });
+  }
+};
+
 //remove food item
 const removeFood = async (req, res) => {
   try {
@@ -188,4 +226,4 @@ const getFoodByCategory = async (req, res) => {
   }
 };
 
-export { addFood, listFood, removeFood, getFoodCategories, getFoodByCategory };
+export { addFood, updateFood, listFood, removeFood, getFoodCategories, getFoodByCategory };
