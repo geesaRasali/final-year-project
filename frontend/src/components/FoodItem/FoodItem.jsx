@@ -13,8 +13,10 @@ const FoodItem = ({ id, name, price, description, image }) => {
   const quantity = cartItems[id] ?? 0;
 
   const imageUrl =
-    typeof image === "string" && !image.startsWith("data:") && !image.startsWith("http")
-      ? `${url}/images/${image}`
+    typeof image === "string"
+      ? image.startsWith("data:") || image.startsWith("http") || image.startsWith("/")
+        ? image
+        : `${url}/images/${image}`
       : image;
 
   return (

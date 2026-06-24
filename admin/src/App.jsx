@@ -4,6 +4,7 @@ import Sidebar from './components/Sidebar/Sidebar';
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 import Add from './pages/Add/Add';
 import List from './pages/List/List';
+import StockControl from './pages/Stock Control/Stock Control';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Orders from './pages/Orders/Orders';
@@ -58,7 +59,8 @@ const App = () => {
   const getDefaultRouteForRole = (role) => {
     if (hasPermission(role, 'dashboard')) return '/';
     if (hasPermission(role, 'addFood')) return '/add';
-    if (hasPermission(role, 'listFood')) return '/list';
+    if (hasPermission(role, 'listFood ')) return '/list';
+    if (hasPermission(role, 'stockControl')) return '/stock-control';
     if (hasPermission(role, 'orders')) return '/orders';
     if (hasPermission(role, 'messages')) return '/admin/messages';
     if (hasPermission(role, 'staffUsers')) return '/staff-users';
@@ -94,6 +96,7 @@ const App = () => {
   const canViewDashboard = hasPermission(adminUser?.role, 'dashboard');
   const canManageFood = hasPermission(adminUser?.role, 'addFood');
   const canListFood = hasPermission(adminUser?.role, 'listFood');
+  const canViewStockControl = hasPermission(adminUser?.role, 'stockControl');
   const canManageOrders = hasPermission(adminUser?.role, 'orders');
   const canViewMessages = hasPermission(adminUser?.role, 'messages');
   const canManageUsers = hasPermission(adminUser?.role, 'staffUsers');
@@ -116,6 +119,7 @@ const App = () => {
             <Route path="/" element={canViewDashboard ? <Dashboard url={url} adminToken={adminToken} /> : <Navigate to={defaultRoute} replace />} />
             <Route path="/add" element={canManageFood ? <Add url={url} adminToken={adminToken} /> : <Navigate to={defaultRoute} replace />} />
             <Route path="/list" element={canListFood ? <List url={url} adminToken={adminToken} /> : <Navigate to={defaultRoute} replace />} />
+            <Route path="/stock-control/*" element={canViewStockControl ? <StockControl /> : <Navigate to={defaultRoute} replace />} />
             <Route path="/orders" element={canManageOrders ? <Orders url={url} adminToken={adminToken} adminUser={adminUser} /> : <Navigate to={defaultRoute} replace />} />
             <Route path="/admin/messages" element={canViewMessages ? <Messages url={url} adminToken={adminToken} /> : <Navigate to={defaultRoute} replace />} />
             <Route path="/staff-users" element={canManageUsers ? <StaffUsers url={url} adminToken={adminToken} /> : <Navigate to={defaultRoute} replace />} />

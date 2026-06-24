@@ -216,8 +216,10 @@ const getFoodCategories = async (req, res) => {
 const getFoodByCategory = async (req, res) => {
   try {
     const { category } = req.params;
-    // Filter food items by category - replace with database query
-    const foodItems = []; // Your filtered food items
+    const foodItems =
+      category && category !== "All"
+        ? await foodModel.find({ category })
+        : await foodModel.find({});
 
     res.json({ success: true, data: foodItems });
   } catch (error) {

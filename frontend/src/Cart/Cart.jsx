@@ -109,7 +109,9 @@ const Cart = () => {
           cartRows.map((item, index) => {
             const imageUrl =
               typeof item.image === "string"
-                ? url + "/images/" + item.image
+                ? item.image.startsWith("data:") || item.image.startsWith("http") || item.image.startsWith("/")
+                  ? item.image
+                  : url + "/images/" + item.image
                 : item.image;
             const currentQty = cartItems[item._id] || 0;
             const inputValue =

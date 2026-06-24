@@ -7,6 +7,9 @@ const List = ({ url, adminToken }) => {
   const [list, setList] = useState([])
   const [loading, setLoading] = useState(true)
   const [query, setQuery] = useState('')
+  const [editItem, setEditItem] = useState(null)
+  const [editPrice, setEditPrice] = useState('')
+  const [savingEdit, setSavingEdit] = useState(false)
 
   const fetchList = async () => {
     try {
@@ -41,6 +44,52 @@ const List = ({ url, adminToken }) => {
       }
     } catch (error) {
       toast.error('Failed to remove food item')
+    }
+  }
+
+  const openEditPrice = (item) => {
+    setEditItem(item)
+    setEditPrice(item?.price ?? '')
+  }
+
+  const closeEditPrice = () => {
+    setEditItem(null)
+    setEditPrice('')
+  }
+
+  const updateFoodPrice = async (event) => {
+    event.preventDefault()
+
+    if (!editItem?._id) {
+      return
+    }
+
+    const nextPrice = Number(editPrice)
+
+    if (Number.isNaN(nextPrice) || nextPrice < 0) {
+      toast.error('Please enter a valid price')
+      return
+    }
+
+    try {
+      setSavingEdit(true)
+      const response = await axios.post(
+        `${url}/api/food/update`,
+        { id: editItem._id, price: nextPrice },
+        { headers: { token: adminToken, Authorization: `Bearer ${adminToken}` } },
+      )
+
+      if (response.data.success) {
+        toast.success('Price updated successfully')
+        closeEditPrice()
+        await fetchList()
+      } else {
+        toast.error(response.data.message || 'Error updating price')
+      }
+    } catch (error) {
+      toast.error('Failed to update price')
+    } finally {
+      setSavingEdit(false)
     }
   }
 
@@ -132,20 +181,26 @@ const List = ({ url, adminToken }) => {
 
                     <p className='text-sm font-black text-zinc-800 dark:text-zinc-100'>LKR {Number(item.price).toLocaleString()}</p>
 
-                    <div className='md:flex md:justify-center'>
-                      <button
-                        type='button'
-                        onClick={() => removeFood(item._id)}
-                        className='mt-2 inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-red-50 px-3 py-2 text-xs font-bold text-red-600 transition hover:bg-red-500 hover:text-white md:mt-0 md:w-auto dark:bg-red-500/10 dark:text-red-400'
-                      >
-                          <button
-                        type='button'
-                        onClick={() => EditFood(item._id)}
-                        className='mt-2 inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-red-50 px-3 py-2 text-xs font-bold text-red-600 transition hover:bg-red-500 hover:text-white md:mt-0 md:w-auto dark:bg-red-500/10 dark:text-red-400'
-                      ></button>
-                        <FiTrash2 size={14} />
-                        
-                      </button>
+                    <div className='md:flex md:justify-center'> 
+                      <div className='mt-2 flex w-full items-center gap-2 md:mt-0 md:w-auto'>
+                        <button
+                          type='button'
+                          onClick={() => openEditPrice(item)}
+                          className='inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-amber-50 px-3 py-2 text-xs font-bold text-amber-700 transition hover:bg-amber-500 hover:text-white dark:bg-amber-500/10 dark:text-amber-300'
+                        >
+                          <FiEdit size={14} />
+                          Edit
+                        </button>
+
+                        <button
+                          type='button'
+                          onClick={() => removeFood(item._id)}
+                          className='inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-red-50 px-3 py-2 text-xs font-bold text-red-600 transition hover:bg-red-500 hover:text-white dark:bg-red-500/10 dark:text-red-400'
+                        >
+                          <FiTrash2 size={14} />
+                          Delete
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -154,6 +209,60 @@ const List = ({ url, adminToken }) => {
           </div>
         )}
       </div>
+
+      {editItem ? (
+        <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4 backdrop-blur-sm'>
+          <div className='w-full max-w-md rounded-3xl border border-zinc-200 bg-white p-5 shadow-2xl dark:border-zinc-700 dark:bg-zinc-900'>
+            <div className='flex items-start justify-between gap-4'>
+              <div>
+                <p className='text-xs font-bold uppercase tracking-[0.18em] text-orange-600'>Edit price</p>
+                <h2 className='mt-1 text-xl font-black text-zinc-900 dark:text-zinc-100'>{editItem.name}</h2>
+                <p className='mt-1 text-sm text-zinc-500 dark:text-zinc-400'>Update only the item price from the list.</p>
+              </div>
+              <button
+                type='button'
+                onClick={closeEditPrice}
+                className='rounded-full p-2 text-zinc-400 transition hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200'
+              >
+                <span className='text-lg leading-none'>×</span>
+              </button>
+            </div>
+
+            <form onSubmit={updateFoodPrice} className='mt-5 space-y-4'>
+              <div className='space-y-2'>
+                <label className='text-sm font-semibold text-zinc-700 dark:text-zinc-300'>Price (LKR)</label>
+                <input
+                  type='number'
+                  min='0'
+                  step='1'
+                  value={editPrice}
+                  onChange={(event) => setEditPrice(event.target.value)}
+                  className='w-full rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-zinc-900 outline-none transition placeholder:text-zinc-400 focus:border-orange-400 focus:bg-white dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:focus:bg-zinc-800'
+                  placeholder='Enter new price'
+                  required
+                />
+              </div>
+
+              <div className='flex gap-3'>
+                <button
+                  type='button'
+                  onClick={closeEditPrice}
+                  className='flex-1 rounded-2xl border border-zinc-200 px-4 py-3 text-sm font-bold text-zinc-700 transition hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-800'
+                >
+                  Cancel
+                </button>
+                <button
+                  type='submit'
+                  disabled={savingEdit}
+                  className='flex-1 rounded-2xl bg-orange-500 px-4 py-3 text-sm font-black text-white transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-70'
+                >
+                  {savingEdit ? 'Saving...' : 'Save price'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      ) : null}
     </section>
   )
 }
