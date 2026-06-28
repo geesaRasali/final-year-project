@@ -13,6 +13,7 @@ import {
 	createStaffUser,
 	updateStaffUser,
 	deleteStaffUser,
+	countCustomers,
 } from "../controllers/userController.js"
 import authMiddleware from "../middleware/auth.js"
 import { requireRoles } from "../middleware/authorize.js";
@@ -54,5 +55,6 @@ userRouter.get("/staff", authMiddleware, requireRoles(USER_ROLES.ADMIN), listSta
 userRouter.post("/staff", authMiddleware, requireRoles(USER_ROLES.ADMIN), createStaffUser)
 userRouter.put("/staff/:id", authMiddleware, requireRoles(USER_ROLES.ADMIN), updateStaffUser)
 userRouter.delete("/staff/:id", authMiddleware, requireRoles(USER_ROLES.ADMIN), deleteStaffUser)
+userRouter.get("/customers/count", authMiddleware, requireRoles(USER_ROLES.ADMIN, USER_ROLES.MANAGEMENT_STAFF), countCustomers)
 
 export default userRouter;

@@ -5,18 +5,33 @@ import { toast } from 'react-toastify'
 import { FiUpload, FiPlusCircle, FiInfo } from 'react-icons/fi'
 import { useLocation, useNavigate } from 'react-router-dom'
 
-const categories = ['Salad', 'Rolls', 'Deserts', 'Sandwich', 'Cake', 'Pure Veg', 'Pasta', 'Noodles','Koththu']
-
 const Add = ({ url, adminToken }) => {
     const [image, setImage] = useState(false)
     const location = useLocation()
     const navigate = useNavigate()
     const editingFood = location.state?.food || null
+
+    // Load categories from localStorage dynamically
+    const categoriesList = (() => {
+        const saved = localStorage.getItem('foodCategories')
+        if (saved) {
+            try {
+                const parsed = JSON.parse(saved)
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    return parsed.map((cat) => cat.name)
+                }
+            } catch (e) {
+                console.error('Failed to parse categories in Add.jsx', e)
+            }
+        }
+        return ['Salad', 'Rolls', 'Deserts', 'Sandwich', 'Cake', 'Pure Veg', 'Pasta', 'Noodles', 'Koththu']
+    })()
+
     const [data, setData] = useState({
         name: '',
         description: '',
         price: '',
-        category: 'Salad',
+        category: editingFood ? editingFood.category : (categoriesList[0] || 'Salad'),
     })
 
     useEffect(() => {
@@ -27,6 +42,11 @@ const Add = ({ url, adminToken }) => {
                 price: editingFood.price ?? '',
                 category: editingFood.category || 'Salad',
             })
+        } else {
+            setData((prev) => ({
+                ...prev,
+                category: categoriesList[0] || 'Salad',
+            }))
         }
     }, [editingFood])
 
@@ -151,7 +171,7 @@ const Add = ({ url, adminToken }) => {
                                             value={data.category}
                                             className='w-full cursor-pointer rounded-2xl border-none bg-white px-5 py-4 text-zinc-900 outline-none transition focus:bg-white focus:ring-2 focus:ring-orange-400 dark:bg-gray-800 dark:text-white dark:focus:bg-gray-800'
                                         >
-                                            {categories.map((c) => (
+                                            {categoriesList.map((c) => (
                                                 <option key={c} value={c} className='bg-white text-zinc-900 dark:bg-gray-800 dark:text-gray-200'>
                                                     {c}
                                                 </option>

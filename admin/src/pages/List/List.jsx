@@ -134,7 +134,7 @@ const List = ({ url, adminToken }) => {
               type='text'
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder='Search by name or category'
+              placeholder='name or category'
               className='w-full bg-transparent text-sm text-zinc-800 outline-none placeholder:text-zinc-400 dark:text-zinc-100'
             />
           </div>

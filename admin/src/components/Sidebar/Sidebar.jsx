@@ -1,169 +1,419 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import {
-  MdDashboard,
-  MdAddBox,
-  MdListAlt,
-  MdShoppingCart,
-  MdPeople,
-  MdMessage,
-  MdInventory,
-  MdKeyboardArrowDown,
-} from "react-icons/md";
-import { FiPackage, FiPlusCircle, FiRepeat, FiList, FiTruck, FiUserPlus } from "react-icons/fi";
+  FiGrid,
+  FiPlusCircle,
+  FiList,
+  FiShoppingBag,
+  FiDatabase,
+  FiUsers,
+  FiClock,
+  FiTruck,
+  FiUserCheck,
+  FiMail,
+  FiTrendingUp,
+  FiSettings,
+  FiChevronDown,
+  FiUserPlus,
+  FiPackage,
+  FiRepeat,
+} from "react-icons/fi";
 import { hasPermission } from "../../config/rbac";
+import logo from "../../assets/logo.png";
 
 const Sidebar = ({ adminUser }) => {
   const location = useLocation();
   const role = adminUser?.role;
-  const [isStockControlOpen, setIsStockControlOpen] = useState(true);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isStockOpen, setIsStockOpen] = useState(false);
 
-  const stockControlItems = useMemo(
-    () => [
-      { to: "/stock-control/add-supplier", label: "Add Supplier", icon: <FiUserPlus /> },
-      { to: "/stock-control/add-stock", label: "Add Stock", icon: <FiPlusCircle /> },
-      { to: "/stock-control/stock-list", label: "Stock List", icon: <FiList /> },
-      { to: "/stock-control/add-new-item", label: "Add New Item", icon: <FiPackage /> },
-      { to: "/stock-control/kitchen-transfer-list", label: "Kitchen Transfer List", icon: <FiTruck /> },
-      { to: "/stock-control/add-item", label: "Add Item", icon: <FiRepeat /> },
-    ],
-    [],
-  );
-
+  // Auto-expand Menu Management if we are on one of its subpages
   useEffect(() => {
-    if (location.pathname.startsWith("/stock-control")) {
-      setIsStockControlOpen(true);
+    if (
+      location.pathname === "/add" ||
+      location.pathname === "/list" ||
+      location.pathname === "/categories"
+    ) {
+      setIsMenuOpen(true);
     }
   }, [location.pathname]);
 
-  const menuItems = [
-    hasPermission(role, "dashboard") && {
-      to: "/",
-      icon: <MdDashboard />,
-      color: "#6366F1",
-      label: "Dashboard",
-    },
-    hasPermission(role, "addFood") && {
-      to: "/add",
-      icon: <MdAddBox />,
-      color: "#22C55E",
-      label: "Add Items",
-    },
-    hasPermission(role, "listFood") && {
-      to: "/list",
-      icon: <MdListAlt />,
-      color: "#0EA5E9",
-      label: "List Items",
-    },
-    hasPermission(role, "stockControl") && {
-      to: "/stock-control",
-      icon: <MdInventory />,
-      color: "#F97316",
-      label: "Stock Control",
-      textcolour:"black",
-      isGroup: true,
-    },
-    hasPermission(role, "orders") && {
-      to: "/orders",
-      icon: <MdShoppingCart />,
-      color: "#F59E0B",
-      label: "Orders",
-    },
-    hasPermission(role, "messages") && {
-      to: "/admin/messages",
-      icon: <MdMessage />,
-      color: "#EF4444",
-      label: "Customer Messages",
-    },
-    hasPermission(role, "staffUsers") && {
-      to: "/staff-users",
-      icon: <MdPeople />,
-      color: "#EC4899",
-      label: "Staff Users",
-    },
-  ].filter(Boolean);
+  // Auto-expand Stock Control if we are on one of its subpages
+  useEffect(() => {
+    if (location.pathname.startsWith("/stock-control")) {
+      setIsStockOpen(true);
+    }
+  }, [location.pathname]);
+
+  const showDashboard = hasPermission(role, "dashboard");
+  const showMenuMgmt =
+    hasPermission(role, "addFood") ||
+    hasPermission(role, "listFood") ||
+    hasPermission(role, "categories");
+  const showOrders = hasPermission(role, "orders");
+  const showStockControl = hasPermission(role, "stockControl");
+  const showKitchenMonitoring = hasPermission(role, "kitchenMonitoring");
+  const showDeliveryMonitoring = hasPermission(role, "deliveryMonitoring");
+  const showStaffUsers = hasPermission(role, "staffUsers");
+  const showMessages = hasPermission(role, "messages");
+  const showReports = hasPermission(role, "reports");
+  const showSettings = hasPermission(role, "settings");
 
   return (
-    <aside className="fixed top-16 left-0 z-30 h-[calc(100vh-4rem)] w-[18%] overflow-y-auto border border-zinc-300 border-t-0 bg-white text-zinc-600 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-300">
-      <nav className="flex flex-col gap-3 pl-[20%] pt-12 pb-6">
-        {menuItems.map((item) => (
-          item.isGroup ? (
-            <div key={item.to} className="rounded-l-sm border border-zinc-300 border-r-0 dark:border-zinc-700">
-              <button
-                type="button"
-                onClick={() => setIsStockControlOpen((prev) => !prev)}
-                className={`flex w-full items-center gap-3 px-2.5 py-2 transition ${
-                  location.pathname.startsWith("/stock-control")
-                    ? "border-orange-500 bg-orange-50 text-zinc-700 dark:border-orange-400 dark:hover:bg-zinc-700 dark:text-zinc-100"
-                    : "text-zinc-600 hover:bg-orange-50 dark:text-zinc-300 dark:hover:bg-zinc-800"
-                }`}
-              >
-                <span
-                  className="flex h-5 w-5 items-center justify-center text-xl"
-                  style={{ color: item.color }}
-                  aria-hidden="true"
-                >
-                  {item.icon}
-                </span>
-                <p className="text-[max(1vw,10px)] font-semibold max-[900px]:hidden">{item.label}</p>
-                <MdKeyboardArrowDown
-                  className={`ml-auto text-lg transition-transform ${isStockControlOpen ? "rotate-180" : "rotate-0"}`}
-                  aria-hidden="true"
-                />
-              </button>
+    <aside className="fixed top-16 left-0 z-30 h-[calc(100vh-4rem)] w-[18%] bg-white text-zinc-650 border-r border-zinc-200 dark:bg-[#0b090c] dark:text-[#a099b0] dark:border-[#1a1722] flex flex-col justify-between overflow-y-auto select-none font-sans scrollbar-thin scrollbar-thumb-zinc-200 dark:scrollbar-thumb-zinc-800">
+      {/* Logo Header Section */}
+      <div className="p-5 flex justify-center items-center border-b border-orange-100 bg-[#fffcf9] dark:border-[#1a1722] dark:bg-[#0e0c12]">
+        <img
+          src={logo}
+          alt="Urban Foods Logo"
+          className="h-10 object-contain"
+        />
+      </div>
 
-              {isStockControlOpen ? (
-                <div className="border-t border-zinc-200 py-2 dark:border-zinc-700">
-                  <div className="mt-1 flex flex-col gap-1">
-                    {stockControlItems.map((subItem) => (
+      {/* Navigation List */}
+      <nav className="flex-1 px-3 py-5 space-y-6">
+        
+        {(showDashboard || showMenuMgmt || showOrders) && (
+          <div className="space-y-1.5">
+            <p className="px-3 text-[10px] font-bold uppercase tracking-wider text-zin-400 dark:text-[#635c72]">
+              Core Operations
+            </p>
+            <div className="space-y-0.5">
+              {showDashboard && (
+                <NavLink
+                  to="/"
+                  className={({ isActive }) =>
+                    `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-205 ${
+                      isActive
+                        ? "bg-orange-50 text-orange-600 border-l-4 border-l-orange-500 pl-2 dark:bg-[#2a170c] dark:text-orange-400 dark:border-l-orange-500"
+                        : "text-zinc-600 hover:bg-orange-50/60 hover:text-orange-600 dark:text-[#a099b0] dark:hover:bg-[#15121b]/80 dark:hover:text-white"
+                    }`
+                  }
+                >
+                  <FiGrid className="w-5 h-5 flex-shrink-0 text-orange-500 dark:text-orange-400" />
+                  <span>Dashboard</span>
+                </NavLink>
+              )}
+
+              {/* Menu Management - Collapsible Dropdown */}
+              {showMenuMgmt && (
+                <div className="space-y-0.5">
+                  <button
+                    onClick={() => setIsMenuOpen((prev) => !prev)}
+                    className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-205 text-zinc-600 hover:bg-orange-50/60 hover:text-orange-600 dark:text-[#a099b0] dark:hover:bg-[#15121b]/80 dark:hover:text-white ${
+                      isMenuOpen ? "text-orange-650 bg-orange-50/30 dark:bg-transparent dark:text-orange-400" : ""
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <FiDatabase className="w-5 h-5 flex-shrink-0 text-orange-500 dark:text-orange-400" />
+                      <span>Menu Management</span>
+                    </div>
+                    <FiChevronDown
+                      className={`w-4 h-4 transition-transform duration-200 ${
+                        isMenuOpen ? "rotate-180" : ""
+                      }`}
+                    />
+                  </button>
+
+                  {isMenuOpen && (
+                    <div className="pl-6 space-y-0.5 border-l border-orange-100 dark:border-[#1a1722] ml-5 mt-1">
+                      {hasPermission(role, "addFood") && (
+                        <NavLink
+                          to="/add"
+                          className={({ isActive }) =>
+                            `flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                              isActive
+                                ? "bg-orange-50 text-orange-600 dark:bg-[#2a170c] dark:text-orange-400"
+                                : "text-zinc-550 hover:bg-orange-50/65 hover:text-orange-600 dark:text-[#a099b0]/80 dark:hover:bg-[#15121b]/80 dark:hover:text-white"
+                            }`
+                          }
+                        >
+                          <FiPlusCircle className="w-4 h-4 text-orange-500/80 dark:text-orange-400/80" />
+                          <span>Add Item</span>
+                        </NavLink>
+                      )}
+                      {hasPermission(role, "listFood") && (
+                        <NavLink
+                          to="/list"
+                          className={({ isActive }) =>
+                            `flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                              isActive
+                                ? "bg-orange-50 text-orange-600 dark:bg-[#2a170c] dark:text-orange-400"
+                                : "text-zinc-550 hover:bg-orange-50/65 hover:text-orange-600 dark:text-[#a099b0]/80 dark:hover:bg-[#15121b]/80 dark:hover:text-white"
+                            }`
+                          }
+                        >
+                          <FiList className="w-4 h-4 text-orange-500/80 dark:text-orange-400/80" />
+                          <span>Item List</span>
+                        </NavLink>
+                      )}
+                      {hasPermission(role, "categories") && (
+                        <NavLink
+                          to="/categories"
+                          className={({ isActive }) =>
+                            `flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                              isActive
+                                ? "bg-orange-50 text-orange-600 dark:bg-[#2a170c] dark:text-orange-400"
+                                : "text-zinc-550 hover:bg-orange-50/65 hover:text-orange-600 dark:text-[#a099b0]/80 dark:hover:bg-[#15121b]/80 dark:hover:text-white"
+                            }`
+                          }
+                        >
+                          <FiGrid className="w-4 h-4 text-orange-500/80 dark:text-orange-400/80" />
+                          <span>Categories</span>
+                        </NavLink>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {showOrders && (
+                <NavLink
+                  to="/orders"
+                  className={({ isActive }) =>
+                    `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                      isActive
+                        ? "bg-orange-50 text-orange-600 border-l-4 border-l-orange-500 pl-2 dark:bg-[#2a170c] dark:text-orange-400 dark:border-l-orange-500"
+                        : "text-zinc-600 hover:bg-orange-50/60 hover:text-orange-600 dark:text-[#a099b0] dark:hover:bg-[#15121b]/80 dark:hover:text-white"
+                    }`
+                  }
+                >
+                  <FiShoppingBag className="w-5 h-5 flex-shrink-0 text-orange-500 dark:text-orange-400" />
+                  <span>Order Management</span>
+                </NavLink>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* SECTION 2: INVENTORY & MONITORING */}
+        {(showStockControl || showSupplierMgmt || showKitchenMonitoring || showDeliveryMonitoring) && (
+          <div className="space-y-1.5">
+            <p className="px-3 text-[10px] font-bold uppercase tracking-wider text-zinc-400 dark:text-[#635c72]">
+              Inventory &amp; Monitoring
+            </p>
+            <div className="space-y-0.5">
+              {/* Stock Control - Collapsible Dropdown */}
+              {showStockControl && (
+                <div className="space-y-0.5">
+                  <button
+                    onClick={() => setIsStockOpen((prev) => !prev)}
+                    className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-205 text-zinc-600 hover:bg-orange-50/60 hover:text-orange-600 dark:text-[#a099b0] dark:hover:bg-[#15121b]/80 dark:hover:text-white ${
+                      isStockOpen ? "text-orange-650 bg-orange-50/30 dark:bg-transparent dark:text-orange-400" : ""
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <FiDatabase className="w-5 h-5 flex-shrink-0 text-orange-500 dark:text-orange-400" />
+                      <span>Stock Control</span>
+                    </div>
+                    <FiChevronDown
+                      className={`w-4 h-4 transition-transform duration-200 ${
+                        isStockOpen ? "rotate-180" : ""
+                      }`}
+                    />
+                  </button>
+
+                  {isStockOpen && (
+                    <div className="pl-6 space-y-0.5 border-l border-orange-100 dark:border-[#1a1722] ml-5 mt-1">
                       <NavLink
-                        key={subItem.to}
-                        to={subItem.to}
+                        to="/stock-control/add-supplier"
                         className={({ isActive }) =>
-                          `flex items-center gap-3 rounded-l-sm px-2.5 py-2 pl-10 transition ${
+                          `flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
                             isActive
-                              ? "bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-100"
-                              : "text-zinc-500 hover:bg-zinc-50 dark:text-zinc-400 dark:hover:bg-zinc-800"
+                              ? "bg-orange-50 text-orange-600 dark:bg-[#2a170c] dark:text-orange-400"
+                              : "text-zinc-550 hover:bg-orange-50/65 hover:text-orange-600 dark:text-[#a099b0]/80 dark:hover:bg-[#15121b]/80 dark:hover:text-white"
                           }`
                         }
                       >
-                        <span className="flex h-4 w-4 items-center justify-center text-sm" aria-hidden="true">
-                          {subItem.icon}
-                        </span>
-                        <p className="text-[max(0.92vw,9px)] max-[900px]:hidden">{subItem.label}</p>
+                        <FiUserPlus className="w-4 h-4 text-orange-500/80 dark:text-orange-400/80" />
+                        <span>Add Supplier</span>
                       </NavLink>
-                    ))}
-                  </div>
+                      <NavLink
+                        to="/stock-control/add-stock"
+                        className={({ isActive }) =>
+                          `flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                            isActive
+                              ? "bg-orange-50 text-orange-600 dark:bg-[#2a170c] dark:text-orange-400"
+                              : "text-zinc-550 hover:bg-orange-50/65 hover:text-orange-600 dark:text-[#a099b0]/80 dark:hover:bg-[#15121b]/80 dark:hover:text-white"
+                          }`
+                        }
+                      >
+                        <FiPlusCircle className="w-4 h-4 text-orange-500/80 dark:text-orange-400/80" />
+                        <span>Add Stock</span>
+                      </NavLink>
+                      <NavLink
+                        to="/stock-control/stock-list"
+                        className={({ isActive }) =>
+                          `flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                            isActive
+                              ? "bg-orange-50 text-orange-600 dark:bg-[#2a170c] dark:text-orange-400"
+                              : "text-zinc-550 hover:bg-orange-50/65 hover:text-orange-600 dark:text-[#a099b0]/80 dark:hover:bg-[#15121b]/80 dark:hover:text-white"
+                          }`
+                        }
+                      >
+                        <FiList className="w-4 h-4 text-orange-500/80 dark:text-orange-400/80" />
+                        <span>Stock List</span>
+                      </NavLink>
+                      <NavLink
+                        to="/stock-control/add-new-item"
+                        className={({ isActive }) =>
+                          `flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                            isActive
+                              ? "bg-orange-50 text-orange-600 dark:bg-[#2a170c] dark:text-orange-400"
+                              : "text-zinc-550 hover:bg-orange-50/65 hover:text-orange-600 dark:text-[#a099b0]/80 dark:hover:bg-[#15121b]/80 dark:hover:text-white"
+                          }`
+                        }
+                      >
+                        <FiPackage className="w-4 h-4 text-orange-500/80 dark:text-orange-400/80" />
+                        <span>Add New Item</span>
+                      </NavLink>
+                      <NavLink
+                        to="/stock-control/kitchen-transfer-list"
+                        className={({ isActive }) =>
+                          `flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                            isActive
+                              ? "bg-orange-50 text-orange-600 dark:bg-[#2a170c] dark:text-orange-400"
+                              : "text-zinc-550 hover:bg-orange-50/65 hover:text-orange-600 dark:text-[#a099b0]/80 dark:hover:bg-[#15121b]/80 dark:hover:text-white"
+                          }`
+                        }
+                      >
+                        <FiTruck className="w-4 h-4 text-orange-500/80 dark:text-orange-400/80" />
+                        <span>Kitchen Transfer List</span>
+                      </NavLink>
+                      <NavLink
+                        to="/stock-control/add-item"
+                        className={({ isActive }) =>
+                          `flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                            isActive
+                              ? "bg-orange-50 text-orange-600 dark:bg-[#2a170c] dark:text-orange-400"
+                              : "text-zinc-550 hover:bg-orange-50/65 hover:text-orange-600 dark:text-[#a099b0]/80 dark:hover:bg-[#15121b]/80 dark:hover:text-white"
+                          }`
+                        }
+                      >
+                        <FiRepeat className="w-4 h-4 text-orange-500/80 dark:text-orange-400/80" />
+                        <span>Add Item</span>
+                      </NavLink>
+                    </div>
+                  )}
                 </div>
-              ) : null}
+              )}
+
+              {showKitchenMonitoring && (
+                <NavLink
+                  to="/kitchen-monitoring"
+                  className={({ isActive }) =>
+                    `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                      isActive
+                        ? "bg-orange-50 text-orange-600 border-l-4 border-l-orange-500 pl-2 dark:bg-[#2a170c] dark:text-orange-400 dark:border-l-orange-500"
+                        : "text-zinc-600 hover:bg-orange-50/60 hover:text-orange-600 dark:text-[#a099b0] dark:hover:bg-[#15121b]/80 dark:hover:text-white"
+                    }`
+                  }
+                >
+                  <FiClock className="w-5 h-5 flex-shrink-0 text-orange-500 dark:text-orange-400" />
+                  <span>Kitchen Monitoring</span>
+                </NavLink>
+              )}
+
+              {showDeliveryMonitoring && (
+                <NavLink
+                  to="/delivery-monitoring"
+                  className={({ isActive }) =>
+                    `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                      isActive
+                        ? "bg-orange-50 text-orange-600 border-l-4 border-l-orange-500 pl-2 dark:bg-[#2a170c] dark:text-orange-400 dark:border-l-orange-500"
+                        : "text-zinc-600 hover:bg-orange-50/60 hover:text-orange-600 dark:text-[#a099b0] dark:hover:bg-[#15121b]/80 dark:hover:text-white"
+                    }`
+                  }
+                >
+                  <FiTruck className="w-5 h-5 flex-shrink-0 text-orange-500 dark:text-orange-400" />
+                  <span>Delivery Monitoring</span>
+                </NavLink>
+              )}
             </div>
-          ) : (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              className={({ isActive }) =>
-                `flex items-center gap-3 rounded-l-sm border border-r-0 px-2.5 py-2 transition ${
-                  isActive
-                    ? "border-orange-500 bg-orange-50 text-zinc-700 dark:border-orange-400 dark:bg-zinc-800 dark:text-zinc-100"
-                    : "border-zinc-300 text-zinc-600 hover:bg-orange-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
-                }`
-              }
-            >
-              <span
-                className="flex h-5 w-5 items-center justify-center text-xl"
-                style={{ color: item.color }}
-                aria-hidden="true"
-              >
-                {item.icon}
-              </span>
-              <p className="text-[max(1vw,10px)] max-[900px]:hidden">{item.label}</p>
-            </NavLink>
-          )
-        ))}
+          </div>
+        )}
+
+        {/* SECTION 3: ADMINISTRATION */}
+        {(showStaffUsers || showMessages || showReports || showSettings) && (
+          <div className="space-y-1.5">
+            <p className="px-3 text-[10px] font-bold uppercase tracking-wider text-zinc-400 dark:text-[#635c72]">
+              Administration
+            </p>
+            <div className="space-y-0.5">
+              {showStaffUsers && (
+                <NavLink
+                  to="/staff-users"
+                  className={({ isActive }) =>
+                    `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                      isActive
+                        ? "bg-orange-50 text-orange-600 border-l-4 border-l-orange-500 pl-2 dark:bg-[#2a170c] dark:text-orange-400 dark:border-l-orange-500"
+                        : "text-zinc-600 hover:bg-orange-50/60 hover:text-orange-600 dark:text-[#a099b0] dark:hover:bg-[#15121b]/80 dark:hover:text-white"
+                    }`
+                  }
+                >
+                  <FiUserCheck className="w-5 h-5 flex-shrink-0 text-orange-500 dark:text-orange-400" />
+                  <span>Staff User Management</span>
+                </NavLink>
+              )}
+
+              {showMessages && (
+                <NavLink
+                  to="/admin/messages"
+                  className={({ isActive }) =>
+                    `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                      isActive
+                        ? "bg-orange-50 text-orange-600 border-l-4 border-l-orange-500 pl-2 dark:bg-[#2a170c] dark:text-orange-400 dark:border-l-orange-500"
+                        : "text-zinc-600 hover:bg-orange-50/60 hover:text-orange-600 dark:text-[#a099b0] dark:hover:bg-[#15121b]/80 dark:hover:text-white"
+                    }`
+                  }
+                >
+                  <FiMail className="w-5 h-5 flex-shrink-0 text-orange-500 dark:text-orange-400" />
+                  <span>Customer Messages</span>
+                </NavLink>
+              )}
+
+              {showReports && (
+                <NavLink
+                  to="/reports-analytics"
+                  className={({ isActive }) =>
+                    `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                      isActive
+                        ? "bg-orange-50 text-orange-600 border-l-4 border-l-orange-500 pl-2 dark:bg-[#2a170c] dark:text-orange-400 dark:border-l-orange-500"
+                        : "text-zinc-600 hover:bg-orange-50/60 hover:text-orange-600 dark:text-[#a099b0] dark:hover:bg-[#15121b]/80 dark:hover:text-white"
+                    }`
+                  }
+                >
+                  <FiTrendingUp className="w-5 h-5 flex-shrink-0 text-orange-500 dark:text-orange-400" />
+                  <span>Reports &amp; Analytics</span>
+                </NavLink>
+              )}
+
+              {showSettings && (
+                <NavLink
+                  to="/settings"
+                  className={({ isActive }) =>
+                    `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                      isActive
+                        ? "bg-orange-50 text-orange-600 border-l-4 border-l-orange-500 pl-2 dark:bg-[#2a170c] dark:text-orange-400 dark:border-l-orange-500"
+                        : "text-zinc-600 hover:bg-orange-50/60 hover:text-orange-600 dark:text-[#a099b0] dark:hover:bg-[#15121b]/80 dark:hover:text-white"
+                    }`
+                  }
+                >
+                  <FiSettings className="w-5 h-5 flex-shrink-0 text-orange-500 dark:text-orange-400" />
+                  <span>Settings</span>
+                </NavLink>
+              )}
+            </div>
+          </div>
+        )}
       </nav>
+
+      {/* Footer Info */}
+      <div className="p-4 border-t border-zinc-150 text-center text-[10px] text-zinc-400 bg-zinc-50/50 dark:border-[#1a1722] dark:text-zinc-600 dark:bg-[#08070b]">
+        <p>&copy; 2026 Urban Foods</p>
+      </div>
     </aside>
   );
 };
 
 export default Sidebar;
-

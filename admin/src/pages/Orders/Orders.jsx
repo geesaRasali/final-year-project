@@ -3,10 +3,12 @@ import { toast } from 'react-toastify';
 import axios from 'axios';
 import { assets } from '../../assets/assets';
 import { normalizeRole, ROLES } from '../../config/rbac';
+import { FiSearch, FiX } from 'react-icons/fi';
 
 const Orders = ({ url, adminToken, adminUser }) => {
   const [Orders, setOrders] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
   const normalizedRole = normalizeRole(adminUser?.role);
   const isDeliveryStaff = normalizedRole === ROLES.DELIVERY_STAFF;
   const statusOptions = isDeliveryStaff
@@ -75,6 +77,29 @@ const Orders = ({ url, adminToken, adminUser }) => {
   const totalRevenue = Orders.reduce((sum, order) => sum + Number(order.amount || 0), 0);
   const deliveredCount = Orders.filter((order) => order.status === 'Delivered').length;
 
+  const filteredOrders = Orders.filter((order) => {
+    const query = searchQuery.toLowerCase().trim();
+    if (!query) return true;
+
+    const firstName = order.address?.firstName || '';
+    const lastName = order.address?.lastName || '';
+    const fullName = `${firstName} ${lastName}`.toLowerCase();
+    const itemsText = (order.items || []).map((item) => `${item.name} x ${item.quantity}`).join(' ').toLowerCase();
+    const orderId = String(order._id || '').toLowerCase();
+    const phone = String(order.address?.phone || '').toLowerCase();
+    const city = String(order.address?.city || '').toLowerCase();
+    const street = String(order.address?.street || '').toLowerCase();
+
+    return (
+      fullName.includes(query) ||
+      itemsText.includes(query) ||
+      orderId.includes(query) ||
+      phone.includes(query) ||
+      city.includes(query) ||
+      street.includes(query)
+    );
+  });
+
   useEffect(() => {
     fetchAllOrders();
   }, []);
@@ -105,6 +130,26 @@ const Orders = ({ url, adminToken, adminUser }) => {
               </div>
             </div>
           </div>
+
+          <div className='mt-3 flex items-center gap-2 rounded-lg border border-zinc-200 bg-white px-3 py-2 dark:border-zinc-700 dark:bg-zinc-800'>
+            <FiSearch className='text-zinc-400' />
+            <input
+              type='text'
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              placeholder='Search by name, items, order ID, phone...'
+              className='w-full bg-transparent text-sm text-zinc-800 outline-none placeholder:text-zinc-400 dark:text-zinc-100'
+            />
+            {searchQuery && (
+              <button
+                type='button'
+                onClick={() => setSearchQuery('')}
+                className='text-zinc-400 hover:text-zinc-650 dark:hover:text-zinc-250 dark:text-zinc-500'
+              >
+                <FiX className='h-4 w-4' />
+              </button>
+            )}
+          </div>
         </div>
 
         {isLoading ? (
@@ -116,9 +161,14 @@ const Orders = ({ url, adminToken, adminUser }) => {
             <img src={assets.parcel_icon} alt='No orders' className='mb-3 h-12 w-12 opacity-35' />
             <p className='text-sm text-zinc-500'>No orders available yet.</p>
           </div>
+        ) : filteredOrders.length === 0 ? (
+          <div className='flex h-44 flex-col items-center justify-center rounded-2xl border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900'>
+            <img src={assets.parcel_icon} alt='No matching orders' className='mb-3 h-12 w-12 opacity-35' />
+            <p className='text-sm text-zinc-500'>No orders match your search query.</p>
+          </div>
         ) : (
           <div className='space-y-3'>
-            {Orders.map((order, index) => (
+            {filteredOrders.map((order, index) => (
               <article
                 key={order._id || index}
                 className='rounded-2xl border border-zinc-200 bg-white p-4 shadow-[0_8px_20px_rgba(15,23,42,0.05)] dark:border-zinc-700 dark:bg-zinc-900'

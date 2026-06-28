@@ -564,6 +564,16 @@ const deleteStaffUser = async (req, res) => {
     }
 }
 
+const countCustomers = async (req, res) => {
+    try {
+        const count = await userModel.countDocuments({ role: USER_ROLES.CUSTOMER });
+        res.json({ success: true, count });
+    } catch (error) {
+        console.log(error);
+        res.json({ success: false, message: "Error" });
+    }
+}
+
 export {
     loginUser,
     registerUser,
@@ -574,4 +584,5 @@ export {
     createStaffUser,
     updateStaffUser,
     deleteStaffUser,
+    countCustomers,
 };

@@ -13,6 +13,12 @@ import Login from './pages/Login/Login';
 import AccessDenied from './pages/AccessDenied/AccessDenied';
 import StaffUsers from './pages/StaffUsers/StaffUsers';
 import Messages from './pages/Messages/Messages';
+import Categories from './pages/Categories/Categories';
+import SupplierManagement from './pages/SupplierManagement/SupplierManagement';
+import KitchenMonitoring from './pages/KitchenMonitoring/KitchenMonitoring';
+import DeliveryMonitoring from './pages/DeliveryMonitoring/DeliveryMonitoring';
+import ReportsAnalytics from './pages/ReportsAnalytics/ReportsAnalytics';
+import Settings from './pages/Settings/Settings';
 import { hasPermission, isAdminPanelRole, normalizeRole } from './config/rbac';
 
 const App = () => {
@@ -59,11 +65,17 @@ const App = () => {
   const getDefaultRouteForRole = (role) => {
     if (hasPermission(role, 'dashboard')) return '/';
     if (hasPermission(role, 'addFood')) return '/add';
-    if (hasPermission(role, 'listFood ')) return '/list';
+    if (hasPermission(role, 'listFood')) return '/list';
+    if (hasPermission(role, 'categories')) return '/categories';
     if (hasPermission(role, 'stockControl')) return '/stock-control';
+    if (hasPermission(role, 'supplierManagement')) return '/supplier-management';
+    if (hasPermission(role, 'kitchenMonitoring')) return '/kitchen-monitoring';
+    if (hasPermission(role, 'deliveryMonitoring')) return '/delivery-monitoring';
     if (hasPermission(role, 'orders')) return '/orders';
     if (hasPermission(role, 'messages')) return '/admin/messages';
     if (hasPermission(role, 'staffUsers')) return '/staff-users';
+    if (hasPermission(role, 'reports')) return '/reports-analytics';
+    if (hasPermission(role, 'settings')) return '/settings';
     return '/access-denied';
   };
 
@@ -96,10 +108,16 @@ const App = () => {
   const canViewDashboard = hasPermission(adminUser?.role, 'dashboard');
   const canManageFood = hasPermission(adminUser?.role, 'addFood');
   const canListFood = hasPermission(adminUser?.role, 'listFood');
+  const canViewCategories = hasPermission(adminUser?.role, 'categories');
   const canViewStockControl = hasPermission(adminUser?.role, 'stockControl');
+  const canViewSupplierManagement = hasPermission(adminUser?.role, 'supplierManagement');
+  const canViewKitchenMonitoring = hasPermission(adminUser?.role, 'kitchenMonitoring');
+  const canViewDeliveryMonitoring = hasPermission(adminUser?.role, 'deliveryMonitoring');
   const canManageOrders = hasPermission(adminUser?.role, 'orders');
   const canViewMessages = hasPermission(adminUser?.role, 'messages');
   const canManageUsers = hasPermission(adminUser?.role, 'staffUsers');
+  const canViewReports = hasPermission(adminUser?.role, 'reports');
+  const canViewSettings = hasPermission(adminUser?.role, 'settings');
 
   const defaultRoute = getDefaultRouteForRole(adminUser?.role);
 
@@ -116,13 +134,19 @@ const App = () => {
         <Sidebar adminUser={adminUser} />
         <div className="min-w-0 flex-1 ml-[18%]">
           <Routes>
-            <Route path="/" element={canViewDashboard ? <Dashboard url={url} adminToken={adminToken} /> : <Navigate to={defaultRoute} replace />} />
+            <Route path="/" element={canViewDashboard ? <Dashboard url={url} adminToken={adminToken} adminUser={adminUser} /> : <Navigate to={defaultRoute} replace />} />
             <Route path="/add" element={canManageFood ? <Add url={url} adminToken={adminToken} /> : <Navigate to={defaultRoute} replace />} />
             <Route path="/list" element={canListFood ? <List url={url} adminToken={adminToken} /> : <Navigate to={defaultRoute} replace />} />
+            <Route path="/categories" element={canViewCategories ? <Categories /> : <Navigate to={defaultRoute} replace />} />
             <Route path="/stock-control/*" element={canViewStockControl ? <StockControl /> : <Navigate to={defaultRoute} replace />} />
+            <Route path="/supplier-management" element={canViewSupplierManagement ? <SupplierManagement /> : <Navigate to={defaultRoute} replace />} />
+            <Route path="/kitchen-monitoring" element={canViewKitchenMonitoring ? <KitchenMonitoring /> : <Navigate to={defaultRoute} replace />} />
+            <Route path="/delivery-monitoring" element={canViewDeliveryMonitoring ? <DeliveryMonitoring /> : <Navigate to={defaultRoute} replace />} />
             <Route path="/orders" element={canManageOrders ? <Orders url={url} adminToken={adminToken} adminUser={adminUser} /> : <Navigate to={defaultRoute} replace />} />
             <Route path="/admin/messages" element={canViewMessages ? <Messages url={url} adminToken={adminToken} /> : <Navigate to={defaultRoute} replace />} />
             <Route path="/staff-users" element={canManageUsers ? <StaffUsers url={url} adminToken={adminToken} /> : <Navigate to={defaultRoute} replace />} />
+            <Route path="/reports-analytics" element={canViewReports ? <ReportsAnalytics /> : <Navigate to={defaultRoute} replace />} />
+            <Route path="/settings" element={canViewSettings ? <Settings /> : <Navigate to={defaultRoute} replace />} />
             <Route path="/access-denied" element={<AccessDenied />} />
             <Route path="*" element={<Navigate to={defaultRoute} replace />} />
           </Routes>
