@@ -138,7 +138,7 @@ const App = () => {
             <Route path="/add" element={canManageFood ? <Add url={url} adminToken={adminToken} /> : <Navigate to={defaultRoute} replace />} />
             <Route path="/list" element={canListFood ? <List url={url} adminToken={adminToken} /> : <Navigate to={defaultRoute} replace />} />
             <Route path="/categories" element={canViewCategories ? <Categories /> : <Navigate to={defaultRoute} replace />} />
-            <Route path="/stock-control/*" element={canViewStockControl ? <StockControl /> : <Navigate to={defaultRoute} replace />} />
+            <Route path="/stock-control/*" element={canViewStockControl ? <StockControl url={url} adminToken={adminToken} /> : <Navigate to={defaultRoute} replace />} />
             <Route path="/supplier-management" element={canViewSupplierManagement ? <SupplierManagement /> : <Navigate to={defaultRoute} replace />} />
             <Route path="/kitchen-monitoring" element={canViewKitchenMonitoring ? <KitchenMonitoring /> : <Navigate to={defaultRoute} replace />} />
             <Route path="/delivery-monitoring" element={canViewDeliveryMonitoring ? <DeliveryMonitoring /> : <Navigate to={defaultRoute} replace />} />
@@ -146,7 +146,7 @@ const App = () => {
             <Route path="/admin/messages" element={canViewMessages ? <Messages url={url} adminToken={adminToken} /> : <Navigate to={defaultRoute} replace />} />
             <Route path="/staff-users" element={canManageUsers ? <StaffUsers url={url} adminToken={adminToken} /> : <Navigate to={defaultRoute} replace />} />
             <Route path="/reports-analytics" element={canViewReports ? <ReportsAnalytics /> : <Navigate to={defaultRoute} replace />} />
-            <Route path="/settings" element={canViewSettings ? <Settings /> : <Navigate to={defaultRoute} replace />} />
+            <Route path="/settings" element={canViewSettings ? <Settings url={url} adminToken={adminToken} adminUser={adminUser} setAdminUser={setAdminUser} /> : <Navigate to={defaultRoute} replace />} />
             <Route path="/access-denied" element={<AccessDenied />} />
             <Route path="*" element={<Navigate to={defaultRoute} replace />} />
           </Routes>
