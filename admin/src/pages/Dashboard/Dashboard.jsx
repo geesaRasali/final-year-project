@@ -321,227 +321,407 @@ const Dashboard = ({ url, adminToken, adminUser }) => {
   }, [allLowStockItems]);
 
   if (adminUser?.role === 'storekeeper') {
+    const RAW_INGREDIENTS = [
+      { _id: 'ing_01', name: 'Fresh Tomatoes', category: 'Vegetables', unit: 'kg', stock: 12, minStock: 15, expiryDays: 4, supplier: 'Fresh Farms Ltd' },
+      { _id: 'ing_02', name: 'Supreme Cheddar Cheese', category: 'Dairy', unit: 'kg', stock: 3, minStock: 10, expiryDays: 12, supplier: 'Supreme Dairy Corp' },
+      { _id: 'ing_03', name: 'Extra Virgin Olive Oil', category: 'Oils & Dressings', unit: 'Liters', stock: 8, minStock: 5, expiryDays: 45, supplier: 'Global Spices & Grains' },
+      { _id: 'ing_04', name: 'Basmati Rice Special', category: 'Grains', unit: 'kg', stock: 45, minStock: 20, expiryDays: 120, supplier: 'Metro Wholesalers' },
+      { _id: 'ing_05', name: 'Indian Ground Cumin', category: 'Spices', unit: 'kg', stock: 0, minStock: 5, expiryDays: 90, supplier: 'Global Spices & Grains' },
+      { _id: 'ing_06', name: 'Whole Chicken Breasts', category: 'Meat & Poultry', unit: 'kg', stock: 25, minStock: 15, expiryDays: -2, supplier: 'Metro Wholesalers' },
+      { _id: 'ing_07', name: 'Fresh Lettuce Heads', category: 'Vegetables', unit: 'pcs', stock: 4, minStock: 10, expiryDays: 2, supplier: 'Fresh Farms Ltd' },
+      { _id: 'ing_08', name: 'Unsalted Butter Blocks', category: 'Dairy', unit: 'kg', stock: 18, minStock: 10, expiryDays: 15, supplier: 'Supreme Dairy Corp' },
+      { _id: 'ing_09', name: 'All-Purpose Flour', category: 'Grains', unit: 'kg', stock: 60, minStock: 30, expiryDays: 80, supplier: 'Global Spices & Grains' },
+      { _id: 'ing_10', name: 'White Sugar Fine', category: 'Baking & Sweeteners', unit: 'kg', stock: 35, minStock: 15, expiryDays: 110, supplier: 'Global Spices & Grains' },
+      { _id: 'ing_11', name: 'Fresh Red Onions', category: 'Vegetables', unit: 'kg', stock: 50, minStock: 20, expiryDays: 8, supplier: 'Fresh Farms Ltd' },
+      { _id: 'ing_12', name: 'Atlantic Salmon Fillets', category: 'Seafood', unit: 'kg', stock: 1, minStock: 5, expiryDays: 1, supplier: 'Metro Wholesalers' },
+      { _id: 'ing_13', name: 'Fresh Milk 1L', category: 'Dairy', unit: 'Liters', stock: 22, minStock: 15, expiryDays: 5, supplier: 'Supreme Dairy Corp' },
+      { _id: 'ing_14', name: 'Garlic Bulbs', category: 'Vegetables', unit: 'kg', stock: 15, minStock: 10, expiryDays: 25, supplier: 'Fresh Farms Ltd' },
+      { _id: 'ing_15', name: 'Black Pepper Ground', category: 'Spices', unit: 'kg', stock: 9, minStock: 5, expiryDays: 70, supplier: 'Global Spices & Grains' },
+    ];
+
+    const SUPPLIERS = [
+      { id: 'SUP-001', name: 'Fresh Farms Ltd', phone: '+94 77 123 4567', email: 'orders@freshfarms.lk', items: 'Tomatoes, Lettuce, Red Onions, Garlic' },
+      { id: 'SUP-002', name: 'Supreme Dairy Corp', phone: '+94 77 987 6543', email: 'sales@supremedairy.lk', items: 'Cheddar Cheese, Butter, Fresh Milk' },
+      { id: 'SUP-003', name: 'Global Spices & Grains', phone: '+94 77 555 4321', email: 'info@globalspices.lk', items: 'Olive Oil, Ground Cumin, Black Pepper, Flour, Sugar' },
+      { id: 'SUP-004', name: 'Metro Wholesalers', phone: '+94 77 222 8888', email: 'wholesale@metrolk.com', items: 'Rice, Chicken Breasts, Salmon Fillets' },
+    ];
+
+    const RECENT_STOCK_IN = [
+      { item: 'Fresh Tomatoes', quantity: 50, supplier: 'Fresh Farms Ltd', date: 'Today' },
+      { item: 'All-Purpose Flour', quantity: 100, supplier: 'Global Spices & Grains', date: 'Today' },
+      { item: 'Fresh Red Onions', quantity: 30, supplier: 'Fresh Farms Ltd', date: 'Today' },
+      { item: 'Unsalted Butter Blocks', quantity: 20, supplier: 'Supreme Dairy Corp', date: 'Yesterday' },
+      { item: 'Extra Virgin Olive Oil', quantity: 15, supplier: 'Global Spices & Grains', date: 'Yesterday' },
+    ];
+
+    const RECENT_STOCK_OUT = [
+      { item: 'Supreme Cheddar Cheese', quantity: 15, toKitchen: 'Hot Line A', date: 'Today' },
+      { item: 'Fresh Tomatoes', quantity: 40, toKitchen: 'Pizza Station', date: 'Today' },
+      { item: 'Extra Virgin Olive Oil', quantity: 10, toKitchen: 'Salad Station', date: 'Today' },
+      { item: 'Whole Chicken Breasts', quantity: 12, toKitchen: 'Hot Line B', date: 'Today' },
+      { item: 'Garlic Bulbs', quantity: 5, toKitchen: 'Pasta Station', date: 'Yesterday' },
+    ];
+
+    const totalInventoryItems = RAW_INGREDIENTS.length;
+    const lowStockItemsCount = RAW_INGREDIENTS.filter(item => item.stock > 0 && item.stock < item.minStock).length;
+    const outOfStockItemsCount = RAW_INGREDIENTS.filter(item => item.stock === 0).length;
+    const totalSuppliersCount = SUPPLIERS.length;
+
+    // Get color initials for images
+    const getInitialsBadge = (name) => {
+      const parts = name.split(' ');
+      const initials = parts.map(p => p[0]).join('').substring(0, 2).toUpperCase();
+      let colorClass = 'bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-200';
+      if (name.includes('Tomatoes') || name.includes('Chicken') || name.includes('Salmon')) {
+        colorClass = 'bg-rose-50 text-rose-600 dark:bg-rose-955/20 dark:text-rose-455';
+      } else if (name.includes('Cheese') || name.includes('Butter') || name.includes('Milk')) {
+        colorClass = 'bg-amber-50 text-amber-600 dark:bg-amber-955/20 dark:text-amber-455';
+      } else if (name.includes('Oil') || name.includes('Lettuce')) {
+        colorClass = 'bg-emerald-50 text-emerald-600 dark:bg-emerald-955/20 dark:text-emerald-455';
+      } else if (name.includes('Flour') || name.includes('Rice') || name.includes('Sugar')) {
+        colorClass = 'bg-blue-50 text-blue-600 dark:bg-blue-955/20 dark:text-blue-455';
+      }
+      return (
+        <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-xs shrink-0 ${colorClass}`}>
+          {initials}
+        </div>
+      );
+    };
+
     return (
-      <div className='mx-auto w-full max-w-6xl px-4 py-8 md:px-8 animate-fadeIn text-zinc-900 dark:text-zinc-100'>
-        {/* Title Header Section */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-black text-zinc-950 dark:text-white tracking-tight">
-            Welcome, {adminUser?.name || 'Store Manager'}!
-          </h1>
-          <p className="text-xs font-extrabold text-orange-600 dark:text-orange-400 mt-1.5 uppercase tracking-widest">
-            Role: Storekeeper | Warehouse & Inventory Control
-          </p>
+      <div className='mx-auto w-full max-w-7xl px-4 py-8 md:px-8 animate-fadeIn text-zinc-900 dark:text-zinc-100 space-y-8'>
+        {/* Header Title */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div>
+            <h1 className="text-4xl font-black text-zinc-955 dark:text-white tracking-tight">
+              Welcome, {adminUser?.name || 'Store Manager'}!
+            </h1>
+            <p className="text-xs font-extrabold text-orange-655 dark:text-orange-455 mt-1.5 uppercase tracking-widest">
+              Role: Storekeeper | Restaurant Inventory Control Dashboard
+            </p>
+          </div>
+          <div className="text-[10px] font-mono text-zinc-400 dark:text-zinc-500 bg-zinc-50 dark:bg-[#0f0d14] px-3 py-1.5 rounded-lg border border-zinc-200/50 dark:border-zinc-800">
+            System Time: {new Date().toLocaleDateString('en-US', { hour: '2-digit', minute: '2-digit' })}
+          </div>
         </div>
 
-        {/* Stats Cards Section */}
-        <div className='mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4'>
-          {/* Card 1: Total Inventory Items */}
-          <div className='relative overflow-hidden rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900 transition-all duration-300 hover:scale-[1.02] group cursor-pointer'>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className='mb-1.5 text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400'>Total Items</p>
-                <h3 className='text-3xl font-black text-zinc-900 dark:text-white tracking-tight'>{foods.length}</h3>
-              </div>
-              <div className="p-3 bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400 rounded-2xl">
-                <FiPackage className="w-6 h-6" />
-              </div>
+
+
+        {/* Section 1: Top Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+          <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-6 rounded-3xl shadow-xs flex items-center justify-between">
+            <div>
+              <p className="text-xs font-bold text-zinc-400 uppercase">Total Inventory Items</p>
+              <h3 className="text-3xl font-black text-zinc-900 dark:text-white mt-1">{totalInventoryItems}</h3>
+            </div>
+            <div className="p-4 bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400 rounded-2xl">
+              <FiPackage className="w-6 h-6" />
             </div>
           </div>
 
-          {/* Card 2: Low Stock Alerts */}
-          <div className='relative overflow-hidden rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900 transition-all duration-300 hover:scale-[1.02] group cursor-pointer'>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className='mb-1.5 text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400'>Low Stock Alerts</p>
-                <h3 className='text-3xl font-black text-zinc-900 dark:text-white tracking-tight'>{allLowStockItems.length}</h3>
-              </div>
-              <div className="p-3 bg-red-50 text-red-650 dark:bg-red-500/10 dark:text-red-400 rounded-2xl">
-                <FiAlertTriangle className="w-6 h-6" />
-              </div>
+          <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-6 rounded-3xl shadow-xs flex items-center justify-between">
+            <div>
+              <p className="text-xs font-bold text-zinc-400 uppercase">Low Stock Items</p>
+              <h3 className="text-3xl font-black text-zinc-900 dark:text-white mt-1">{lowStockItemsCount}</h3>
+            </div>
+            <div className="p-4 bg-orange-50 text-orange-600 dark:bg-orange-900/20 dark:text-orange-400 rounded-2xl">
+              <FiAlertTriangle className="w-6 h-6" />
             </div>
           </div>
 
-          {/* Card 3: Total Suppliers */}
-          <div className='relative overflow-hidden rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900 transition-all duration-300 hover:scale-[1.02] group cursor-pointer'>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className='mb-1.5 text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400'>Active Suppliers</p>
-                <h3 className='text-3xl font-black text-zinc-900 dark:text-white tracking-tight'>3</h3>
-              </div>
-              <div className="p-3 bg-purple-50 text-purple-600 dark:bg-purple-500/10 dark:text-purple-400 rounded-2xl">
-                <FiUsers className="w-6 h-6" />
-              </div>
+          <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-6 rounded-3xl shadow-xs flex items-center justify-between">
+            <div>
+              <p className="text-xs font-bold text-zinc-400 uppercase">Out Of Stock Items</p>
+              <h3 className="text-3xl font-black text-zinc-900 dark:text-white mt-1">{outOfStockItemsCount}</h3>
+            </div>
+            <div className="p-4 bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400 rounded-2xl">
+              <FiAlertTriangle className="w-6 h-6" />
             </div>
           </div>
 
-          {/* Card 4: Categories Count */}
-          <div className='relative overflow-hidden rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900 transition-all duration-300 hover:scale-[1.02] group cursor-pointer'>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className='mb-1.5 text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400'>Stock Categories</p>
-                <h3 className='text-3xl font-black text-zinc-900 dark:text-white tracking-tight'>
-                  {new Set(foods.map(item => item.category)).size}
-                </h3>
-              </div>
-              <div className="p-3 bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400 rounded-2xl">
-                <FiList className="w-6 h-6" />
-              </div>
+          <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-6 rounded-3xl shadow-xs flex items-center justify-between">
+            <div>
+              <p className="text-xs font-bold text-zinc-400 uppercase">Total Suppliers</p>
+              <h3 className="text-3xl font-black text-zinc-900 dark:text-white mt-1">{totalSuppliersCount}</h3>
+            </div>
+            <div className="p-4 bg-purple-50 text-purple-600 dark:bg-purple-900/20 dark:text-purple-400 rounded-2xl">
+              <FiUsers className="w-6 h-6" />
             </div>
           </div>
         </div>
 
-        {/* Dashboard Grid Details */}
-        <div className='grid gap-6 grid-cols-1 lg:grid-cols-3'>
-          {/* Left / Span 2: Low Stock List & Quick Launch */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Low Stock Panel */}
-            <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm">
-              <h3 className="text-lg font-bold text-zinc-900 dark:text-white pb-3 border-b border-zinc-105 dark:border-zinc-800 flex items-center gap-2 mb-4">
-                <FiAlertTriangle className="w-5 h-5 text-red-500" />
-                Critical Low Stock Levels
-              </h3>
-              
-              {loading ? (
-                <p className="text-sm text-zinc-500">Loading stock details...</p>
-              ) : allLowStockItems.length === 0 ? (
-                <div className="text-center py-6">
-                  <p className="text-sm text-zinc-500 dark:text-zinc-400 font-semibold">All inventory levels are optimal! 🎉</p>
-                </div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-sm border-collapse">
-                    <thead>
-                      <tr className="border-b border-zinc-100 dark:border-zinc-800 text-zinc-450 uppercase text-[10px] font-extrabold tracking-wider">
-                        <th className="pb-3 font-semibold">Item Image</th>
-                        <th className="pb-3 font-semibold">Item Name</th>
-                        <th className="pb-3 font-semibold">Category</th>
-                        <th className="pb-3 font-semibold">Stock Qty</th>
-                        <th className="pb-3 font-semibold">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-zinc-50 dark:divide-zinc-800">
-                      {allLowStockItems.map((item) => (
-                        <tr key={item._id} className="hover:bg-zinc-50/50 dark:hover:bg-zinc-800/30">
-                          <td className="py-3">
-                            <img
-                              src={`${url}/images/${item.image}`}
-                              alt={item.name}
-                              className="h-10 w-10 rounded-lg object-cover border border-zinc-150 dark:border-zinc-700"
-                            />
-                          </td>
-                          <td className="py-3 font-bold text-zinc-800 dark:text-zinc-200">{item.name}</td>
-                          <td className="py-3 text-zinc-500 dark:text-zinc-400">{item.category}</td>
-                          <td className="py-3">
-                            <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold ${
-                              item.stockValue === 0 
-                                ? 'bg-red-100 dark:bg-red-950/30 text-red-650 dark:text-red-400' 
-                                : 'bg-orange-100 dark:bg-orange-950/30 text-orange-650 dark:text-orange-400'
-                            }`}>
-                              {item.stockValue} left
-                            </span>
-                          </td>
-                          <td className="py-3">
-                            <span className="text-xs font-semibold text-zinc-500">
-                              {item.stockValue === 0 ? 'Out of Stock' : 'Low Stock Alert'}
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
 
-            {/* Quick Actions Portal */}
-            <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm">
-              <h3 className="text-lg font-bold text-zinc-900 dark:text-white pb-3 border-b border-zinc-100 dark:border-zinc-800 flex items-center gap-2 mb-6">
-                <FiSliders className="w-5 h-5 text-orange-500" />
-                Store Quick Management Links
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {[
-                  { label: 'Add Supplier', desc: 'Manage vendor directory', icon: FiUserPlus, path: '/stock-control/add-supplier', color: 'text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10' },
-                  { label: 'Add Stock', desc: 'Add quantities to stock', icon: FiPlusCircle, path: '/stock-control/add-stock', color: 'text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10' },
-                  { label: 'Stock List', desc: 'View current levels', icon: FiList, path: '/stock-control/stock-list', color: 'text-amber-500 bg-amber-50 dark:bg-amber-500/10' },
-                  { label: 'Add New Item', desc: 'Add food items to DB', icon: FiPackage, path: '/stock-control/add-new-item', color: 'text-blue-500 bg-blue-50 dark:bg-blue-500/10' },
-                  { label: 'Kitchen Transfer', desc: 'Track ingredient transfers', icon: FiTruck, path: '/stock-control/kitchen-transfer-list', color: 'text-fuchsia-500 bg-fuchsia-50 dark:bg-fuchsia-500/10' },
-                  { label: 'Add Item Link', desc: 'Quick stock association', icon: FiRepeat, path: '/stock-control/add-item', color: 'text-rose-500 bg-rose-50 dark:bg-rose-500/10' },
-                ].map((act, i) => {
-                  const Icon = act.icon;
+
+        {/* Section 2: Current Inventory */}
+        <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-6 rounded-3xl shadow-xs">
+          <h3 className="text-lg font-bold mb-4 pb-2 border-b border-zinc-105 dark:border-zinc-800">Current Inventory</h3>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm border-collapse">
+              <thead>
+                <tr className="border-b border-zinc-100 dark:border-zinc-800 text-zinc-400 uppercase text-[10px] font-extrabold tracking-wider">
+                  <th className="pb-3">Item Image</th>
+                  <th className="pb-3">Item Name</th>
+                  <th className="pb-3">Category</th>
+                  <th className="pb-3">Supplier</th>
+                  <th className="pb-3 text-right">Current Stock</th>
+                  <th className="pb-3 text-center">Unit</th>
+                  <th className="pb-3 text-right">Minimum Stock</th>
+                  <th className="pb-3 text-center">Status</th>
+                  <th className="pb-3 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
+                {RAW_INGREDIENTS.map((item) => {
+                  const isOutOfStock = item.stock === 0;
+                  const isLowStock = item.stock > 0 && item.stock < item.minStock;
                   return (
-                    <button
-                      key={i}
-                      onClick={() => navigate(act.path)}
-                      className="p-4 border border-zinc-150 dark:border-zinc-800 rounded-xl hover:shadow-md hover:border-orange-200 dark:hover:border-orange-950 transition-all duration-200 text-left flex items-center gap-4 group cursor-pointer"
-                    >
-                      <div className={`p-3 rounded-xl ${act.color} group-hover:scale-105 transition-transform`}>
-                        <Icon className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-sm text-zinc-850 dark:text-zinc-200">{act.label}</h4>
-                        <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">{act.desc}</p>
-                      </div>
-                    </button>
+                    <tr key={item._id} className="hover:bg-zinc-50/50 dark:hover:bg-zinc-800/20">
+                      <td className="py-3">
+                        {getInitialsBadge(item.name)}
+                      </td>
+                      <td className="py-3 font-bold text-zinc-800 dark:text-zinc-200">
+                        {item.name}
+                      </td>
+                      <td className="py-3 text-zinc-505 dark:text-zinc-400 text-xs">
+                        {item.category}
+                      </td>
+                      <td className="py-3 text-zinc-650 dark:text-zinc-350 text-xs font-semibold">
+                        {item.supplier}
+                      </td>
+                      <td className="py-3 text-right font-extrabold text-zinc-900 dark:text-white">
+                        {item.stock}
+                      </td>
+                      <td className="py-3 text-center text-zinc-505 text-xs font-mono">
+                        {item.unit}
+                      </td>
+                      <td className="py-3 text-right text-zinc-505 font-semibold">
+                        {item.minStock}
+                      </td>
+                      <td className="py-3 text-center">
+                        <span className={`inline-flex px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-wider ${
+                          isOutOfStock 
+                            ? 'bg-red-100 text-red-650 dark:bg-red-955/20 dark:text-red-400' 
+                            : isLowStock 
+                              ? 'bg-orange-100 text-orange-655 dark:bg-orange-955/20 dark:text-orange-400' 
+                              : 'bg-emerald-100 text-emerald-650 dark:bg-emerald-955/20 dark:text-emerald-455'
+                        }`}>
+                          {isOutOfStock ? 'Out of Stock' : isLowStock ? 'Low Stock' : 'In Stock'}
+                        </span>
+                      </td>
+                      <td className="py-3 text-right">
+                        <div className="flex justify-end gap-1.5">
+                          <button 
+                            onClick={() => toast.info(`Viewing details for ${item.name}`)}
+                            className="px-2 py-1 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 rounded-lg text-[10px] font-bold cursor-pointer"
+                          >
+                            View
+                          </button>
+                          <button 
+                            onClick={() => toast.info(`Opening editor for ${item.name}`)}
+                            className="px-2 py-1 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 rounded-lg text-[10px] font-bold cursor-pointer"
+                          >
+                            Edit
+                          </button>
+                          <button 
+                            onClick={() => navigate('/stock-control/add-stock')}
+                            className="px-2 py-1 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-[10px] font-bold cursor-pointer shadow-xs"
+                          >
+                            Update Stock
+                          </button>
+                          <button 
+                            onClick={() => toast.error(`Simulated deleting item ${item.name}`)}
+                            className="px-2 py-1 bg-red-600 hover:bg-red-700 text-white rounded-lg text-[10px] font-bold cursor-pointer"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
                   );
                 })}
-              </div>
-            </div>
+              </tbody>
+            </table>
           </div>
+        </div>
 
-          {/* Right Side: Stock Breakdown & Supplier Overview */}
-          <div className="space-y-6">
-            {/* Category Stock Distribution */}
-            <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm">
-              <h3 className="text-lg font-bold text-zinc-900 dark:text-white pb-3 border-b border-zinc-100 dark:border-zinc-800 flex items-center gap-2 mb-4">
-                Category Distribution
-              </h3>
-              
-              <div className="space-y-4">
-                {Object.entries(
-                  foods.reduce((acc, item) => {
-                    acc[item.category] = (acc[item.category] || 0) + 1;
-                    return acc;
-                  }, {})
-                ).map(([category, count]) => {
-                  const percent = Math.round((count / foods.length) * 100) || 0;
-                  return (
-                    <div key={category} className="space-y-1">
-                      <div className="flex justify-between text-xs font-semibold">
-                        <span className="text-zinc-700 dark:text-zinc-350">{category}</span>
-                        <span className="text-zinc-400">{count} items ({percent}%)</span>
-                      </div>
-                      <div className="h-2 w-full rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
-                        <div className="h-full bg-orange-500 rounded-full" style={{ width: `${percent}%` }} />
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Supplier Quick Cards */}
-            <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm">
-              <h3 className="text-lg font-bold text-zinc-900 dark:text-white pb-3 border-b border-zinc-100 dark:border-zinc-800 mb-4">
-                Active Suppliers Directory
-              </h3>
-              
-              <div className="space-y-3">
-                {[
-                  { name: 'Fresh Farms Ltd', items: 'Vegetables & Fruits', phone: '+94 77 123 4567' },
-                  { name: 'Supreme Dairy Corp', items: 'Milk, Cheese & Butter', phone: '+94 77 987 6543' },
-                  { name: 'Global Spices & Grains', items: 'Spices, Flour & Rice', phone: '+94 77 555 4321' }
-                ].map((sup, idx) => (
-                  <div key={idx} className="p-3 bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-100 dark:border-zinc-800 rounded-xl flex flex-col">
-                    <span className="font-bold text-sm text-zinc-850 dark:text-zinc-200">{sup.name}</span>
-                    <span className="text-[10px] font-bold text-orange-600 uppercase mt-0.5">{sup.items}</span>
-                    <span className="text-xs text-zinc-450 dark:text-zinc-500 mt-2">{sup.phone}</span>
+        {/* Section 3 & Section 4 */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Section 3: Low Stock Alerts */}
+          <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-6 rounded-3xl shadow-xs">
+            <h3 className="text-lg font-bold mb-4 pb-2 border-b border-zinc-100 dark:border-zinc-800 text-orange-655 flex items-center gap-2">
+              <FiAlertTriangle className="w-5 h-5" />
+              Low Stock Alerts
+            </h3>
+            <div className="space-y-4">
+              {RAW_INGREDIENTS.filter(item => item.stock < item.minStock).map((item) => (
+                <div key={item._id} className="p-4 bg-zinc-50 dark:bg-zinc-805/30 border border-zinc-100 dark:border-zinc-800 rounded-2xl flex justify-between items-center gap-4">
+                  <div>
+                    <h4 className="font-bold text-sm text-zinc-850 dark:text-zinc-200">{item.name}</h4>
+                    <p className="text-xs text-zinc-500 mt-1">
+                      Current Quantity: <span className="font-bold text-orange-600">{item.stock} {item.unit}</span> (Min: {item.minStock})
+                    </p>
+                    <p className="text-[10px] text-zinc-400 mt-0.5">Supplier: {item.supplier}</p>
                   </div>
-                ))}
-              </div>
+                  <button 
+                    onClick={() => toast.success(`Restock order requested for ${item.name}`)}
+                    className="px-3 py-1.5 bg-orange-650 hover:bg-orange-700 text-white rounded-xl text-xs font-bold shadow-xs cursor-pointer"
+                  >
+                    Restock
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Section 4: Expiry Monitoring */}
+          <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-6 rounded-3xl shadow-xs">
+            <h3 className="text-lg font-bold mb-4 pb-2 border-b border-zinc-100 dark:border-zinc-800 text-rose-600">Expiry Monitoring</h3>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr className="border-b border-zinc-100 dark:border-zinc-800 text-zinc-400 uppercase text-[9px] font-extrabold tracking-wider">
+                    <th className="pb-3">Item</th>
+                    <th className="pb-3">Expiry Date</th>
+                    <th className="pb-3 text-right">Days Remaining</th>
+                    <th className="pb-3 text-center">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
+                  {RAW_INGREDIENTS.filter(item => item.expiryDays <= 15).map((item, idx) => {
+                    const expiryDate = new Date();
+                    expiryDate.setDate(expiryDate.getDate() + item.expiryDays);
+                    const isExpired = item.expiryDays < 0;
+                    const isExpiringSoon = item.expiryDays >= 0 && item.expiryDays <= 5;
+                    return (
+                      <tr key={idx} className="hover:bg-zinc-50/50 dark:hover:bg-zinc-800/20">
+                        <td className="py-2.5 font-bold text-zinc-850 dark:text-zinc-200">{item.name}</td>
+                        <td className="py-2.5 text-zinc-500 font-medium">
+                          {expiryDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                        </td>
+                        <td className="py-2.5 text-right font-bold text-zinc-850 dark:text-zinc-200">
+                          {isExpired ? 'Expired' : `${item.expiryDays} days`}
+                        </td>
+                        <td className="py-2.5 text-center">
+                          <span className={`inline-flex px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase ${
+                            isExpired 
+                              ? 'bg-red-100 text-red-655 dark:bg-red-955/20 dark:text-red-400' 
+                              : isExpiringSoon 
+                                ? 'bg-orange-100 text-orange-655 dark:bg-orange-955/20 dark:text-orange-400' 
+                                : 'bg-emerald-100 text-emerald-650 dark:bg-emerald-955/20 dark:text-emerald-455'
+                          }`}>
+                            {isExpired ? 'Expired' : isExpiringSoon ? 'Expiring Soon' : 'Good'}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
+
+        {/* Section 5 & Section 6 */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Section 5: Recent Stock In */}
+          <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-6 rounded-3xl shadow-xs">
+            <h3 className="text-lg font-bold mb-4 pb-2 border-b border-zinc-100 dark:border-zinc-800 text-emerald-600">Recent Stock In</h3>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr className="border-b border-zinc-100 dark:border-zinc-800 text-zinc-400 uppercase text-[9px] font-extrabold tracking-wider">
+                    <th className="pb-3">Item</th>
+                    <th className="pb-3 text-right">Quantity Added</th>
+                    <th className="pb-3 pl-4">Supplier</th>
+                    <th className="pb-3 text-right">Date</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
+                  {RECENT_STOCK_IN.map((row, idx) => (
+                    <tr key={idx} className="hover:bg-zinc-50/50 dark:hover:bg-zinc-800/20">
+                      <td className="py-3 font-bold text-zinc-850 dark:text-zinc-200">{row.item}</td>
+                      <td className="py-3 text-right font-extrabold text-emerald-600">+{row.quantity} units</td>
+                      <td className="py-3 pl-4 text-zinc-505 font-semibold">{row.supplier}</td>
+                      <td className="py-3 text-right text-zinc-450 font-medium">{row.date}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Section 6: Recent Stock Out */}
+          <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-6 rounded-3xl shadow-xs">
+            <h3 className="text-lg font-bold mb-4 pb-2 border-b border-zinc-100 dark:border-zinc-800 text-rose-500">Recent Stock Out</h3>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr className="border-b border-zinc-100 dark:border-zinc-800 text-zinc-400 uppercase text-[9px] font-extrabold tracking-wider">
+                    <th className="pb-3">Item</th>
+                    <th className="pb-3 text-right">Quantity</th>
+                    <th className="pb-3 pl-4">Issued To Kitchen</th>
+                    <th className="pb-3 text-right">Date</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
+                  {RECENT_STOCK_OUT.map((row, idx) => (
+                    <tr key={idx} className="hover:bg-zinc-50/50 dark:hover:bg-zinc-800/20">
+                      <td className="py-3 font-bold text-zinc-855 dark:text-zinc-200">{row.item}</td>
+                      <td className="py-3 text-right font-extrabold text-rose-500">-{row.quantity} units</td>
+                      <td className="py-3 pl-4 text-zinc-505 font-semibold">{row.toKitchen}</td>
+                      <td className="py-3 text-right text-zinc-455 font-medium">{row.date}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        {/* Section 7: Suppliers */}
+        <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-6 rounded-3xl shadow-xs">
+          <h3 className="text-lg font-bold mb-4 pb-2 border-b border-zinc-100 dark:border-zinc-800">Suppliers</h3>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm border-collapse">
+              <thead>
+                <tr className="border-b border-zinc-100 dark:border-zinc-800 text-zinc-400 uppercase text-[10px] font-extrabold tracking-wider">
+                  <th className="pb-3">Supplier Name</th>
+                  <th className="pb-3">Phone</th>
+                  <th className="pb-3">Email</th>
+                  <th className="pb-3">Supplied Items</th>
+                  <th className="pb-3 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
+                {SUPPLIERS.map((sup) => (
+                  <tr key={sup.id} className="hover:bg-zinc-50/50 dark:hover:bg-zinc-800/20">
+                    <td className="py-3 font-bold text-zinc-800 dark:text-zinc-200">{sup.name}</td>
+                    <td className="py-3 text-zinc-650 dark:text-zinc-300 font-mono text-xs">{sup.phone}</td>
+                    <td className="py-3 text-zinc-505 text-xs font-semibold">{sup.email}</td>
+                    <td className="py-3 text-zinc-505 text-xs truncate max-w-[200px]" title={sup.items}>{sup.items}</td>
+                    <td className="py-3 text-right">
+                      <div className="flex justify-end gap-2">
+                        <button 
+                          onClick={() => toast.info(`Editing supplier ${sup.name}`)}
+                          className="px-2.5 py-1 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-850 dark:hover:bg-zinc-750 text-zinc-700 dark:text-zinc-300 rounded-lg text-xs font-bold cursor-pointer"
+                        >
+                          Edit
+                        </button>
+                        <button 
+                          onClick={() => toast.error(`Simulating deleting supplier ${sup.name}`)}
+                          className="px-2.5 py-1 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold cursor-pointer"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
       </div>
     );
   }

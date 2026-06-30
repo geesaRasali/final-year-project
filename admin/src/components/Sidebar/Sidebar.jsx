@@ -26,6 +26,7 @@ const Sidebar = ({ adminUser }) => {
   const location = useLocation();
   const role = adminUser?.role;
   const [isStockOpen, setIsStockOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   // Auto-expand Stock Control if we are on one of its subpages
   useEffect(() => {
@@ -34,8 +35,22 @@ const Sidebar = ({ adminUser }) => {
     }
   }, [location.pathname]);
 
+  // Auto-expand Menu Management if we are on one of its subpages
+  useEffect(() => {
+    if (
+      location.pathname === "/add" ||
+      location.pathname === "/list" ||
+      location.pathname === "/categories"
+    ) {
+      setIsMenuOpen(true);
+    }
+  }, [location.pathname]);
+
   const showDashboard = hasPermission(role, "dashboard");
   const showOrders = hasPermission(role, "orders");
+  const showAddFood = hasPermission(role, "addFood");
+  const showListFood = hasPermission(role, "listFood");
+  const showCategories = hasPermission(role, "categories");
   const showStockControl = hasPermission(role, "stockControl");
   const showKitchenMonitoring = hasPermission(role, "kitchenMonitoring");
   const showDeliveryMonitoring = hasPermission(role, "deliveryMonitoring");
@@ -80,6 +95,77 @@ const Sidebar = ({ adminUser }) => {
                   <FiGrid className="w-5 h-5 flex-shrink-0 text-orange-500 dark:text-orange-400" />
                   <span>Dashboard</span>
                 </NavLink>
+              )}
+
+              {(showAddFood || showListFood || showCategories) && (
+                <div className="space-y-0.5 mb-1">
+                  <button
+                    onClick={() => setIsMenuOpen((prev) => !prev)}
+                    className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-205 text-zinc-600 hover:bg-orange-50/60 hover:text-orange-600 dark:text-[#a099b0] dark:hover:bg-[#15121b]/80 dark:hover:text-white cursor-pointer ${
+                      isMenuOpen ? "text-orange-600 bg-orange-50/30 dark:bg-transparent dark:text-orange-400 font-bold" : ""
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <FiDatabase className="w-5 h-5 flex-shrink-0 text-orange-500 dark:text-orange-400" />
+                      <span>Menu Management</span>
+                    </div>
+                    <FiChevronDown
+                      className={`w-4 h-4 transition-transform duration-200 ${
+                        isMenuOpen ? "rotate-180" : ""
+                      }`}
+                    />
+                  </button>
+
+                  {isMenuOpen && (
+                    <div className="pl-6 space-y-0.5 border-l border-orange-100 dark:border-[#1a1722] ml-5 mt-1 mb-1">
+                      {showAddFood && (
+                        <NavLink
+                          to="/add"
+                          className={({ isActive }) =>
+                            `flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                              isActive
+                                ? "bg-orange-50 text-orange-600 dark:bg-[#2a170c] dark:text-orange-400"
+                                : "text-zinc-550 hover:bg-orange-50/65 hover:text-orange-600 dark:text-[#a099b0]/80 dark:hover:bg-[#15121b]/80 dark:hover:text-white"
+                            }`
+                          }
+                        >
+                          <FiPlusCircle className="w-4 h-4 text-orange-500/80 dark:text-orange-400/80" />
+                          <span>Add Item</span>
+                        </NavLink>
+                      )}
+                      {showListFood && (
+                        <NavLink
+                          to="/list"
+                          className={({ isActive }) =>
+                            `flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                              isActive
+                                ? "bg-orange-50 text-orange-600 dark:bg-[#2a170c] dark:text-orange-400"
+                                : "text-zinc-550 hover:bg-orange-50/65 hover:text-orange-600 dark:text-[#a099b0]/80 dark:hover:bg-[#15121b]/80 dark:hover:text-white"
+                            }`
+                          }
+                        >
+                          <FiList className="w-4 h-4 text-orange-500/80 dark:text-orange-400/80" />
+                          <span>Item List</span>
+                        </NavLink>
+                      )}
+                      {showCategories && (
+                        <NavLink
+                          to="/categories"
+                          className={({ isActive }) =>
+                            `flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                              isActive
+                                ? "bg-orange-50 text-orange-600 dark:bg-[#2a170c] dark:text-orange-400"
+                                : "text-zinc-550 hover:bg-orange-50/65 hover:text-orange-600 dark:text-[#a099b0]/80 dark:hover:bg-[#15121b]/80 dark:hover:text-white"
+                            }`
+                          }
+                        >
+                          <FiGrid className="w-4 h-4 text-orange-500/80 dark:text-orange-400/80" />
+                          <span>Categories</span>
+                        </NavLink>
+                      )}
+                    </div>
+                  )}
+                </div>
               )}
 
               {showOrders && (

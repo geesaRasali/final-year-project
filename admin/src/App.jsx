@@ -145,7 +145,7 @@ const App = () => {
             <Route path="/orders" element={canManageOrders ? <Orders url={url} adminToken={adminToken} adminUser={adminUser} /> : <Navigate to={defaultRoute} replace />} />
             <Route path="/admin/messages" element={canViewMessages ? <Messages url={url} adminToken={adminToken} /> : <Navigate to={defaultRoute} replace />} />
             <Route path="/staff-users" element={canManageUsers ? <StaffUsers url={url} adminToken={adminToken} /> : <Navigate to={defaultRoute} replace />} />
-            <Route path="/reports-analytics" element={canViewReports ? <ReportsAnalytics /> : <Navigate to={defaultRoute} replace />} />
+            <Route path="/reports-analytics" element={canViewReports ? <ReportsAnalytics url={url} adminToken={adminToken} adminUser={adminUser} /> : <Navigate to={defaultRoute} replace />} />
             <Route path="/settings" element={canViewSettings ? <Settings url={url} adminToken={adminToken} adminUser={adminUser} setAdminUser={setAdminUser} /> : <Navigate to={defaultRoute} replace />} />
             <Route path="/access-denied" element={<AccessDenied />} />
             <Route path="*" element={<Navigate to={defaultRoute} replace />} />
