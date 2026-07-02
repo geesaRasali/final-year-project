@@ -192,14 +192,14 @@ const Dashboard = ({ url, adminToken, adminUser }) => {
     const availableLength = circumference - totalGapsLength;
 
     const colors = [
-      '#10b981', // Green
-      '#3b82f6', // Blue
-      '#ef4444', // Red
-      '#a855f7', // Purple
-      '#f59e0b', // Amber/Orange
-      '#ec4899', // Pink/Rose
-      '#06b6d4', // Cyan
-      '#6366f1', // Indigo
+      '#10b981', 
+      '#3b82f6', 
+      '#ef4444', 
+      '#a855f7', 
+      '#f59e0b', 
+      '#ec4899', 
+      '#06b6d4', 
+      '#6366f1', 
     ];
 
     let currentOffset = 0; 
@@ -731,7 +731,7 @@ const Dashboard = ({ url, adminToken, adminUser }) => {
   }, [orders]);
 
   return (
-    <div className='mx-auto w-full max-w-6xl px-4 py-8 md:px-8 animate-fadeIn text-zinc-900 dark:text-zinc-100'>
+    <div className='w-full px-4 py-8 md:px-8 animate-fadeIn text-zinc-900 dark:text-zinc-100'>
       {/* Title Header Section */}
       <div className="mb-8">
         <h1 className="text-4xl font-black text-zinc-950 dark:text-white tracking-tight">
