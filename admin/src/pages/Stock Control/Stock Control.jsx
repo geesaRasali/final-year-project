@@ -12,11 +12,11 @@ const StockControlGrid = () => {
 
   const stockSections = [
     { label: 'Add Supplier', icon: FiUserPlus, description: 'Create and manage supplier records.', href: '/stock-control/add-supplier' },
+    { label: 'Add Item', icon: FiRepeat, description: 'Quickly add items to stock workflows.', href: '/stock-control/add-item' },
     { label: 'Add Stock', icon: FiPlusCircle, description: 'Record incoming stock quantities.', href: '/stock-control/add-stock' },
     { label: 'Stock List', icon: FiList, description: 'Review current stock levels and statuses.', href: '/stock-control/stock-list' },
     { label: 'Add New Item', icon: FiPackage, description: 'Create new inventory items for the kitchen.', href: '/stock-control/add-new-item' },
     { label: 'Kitchen Transfer List', icon: FiTruck, description: 'Track items moved to kitchen operations.', href: '/stock-control/kitchen-transfer-list' },
-    { label: 'Add Item', icon: FiRepeat, description: 'Quickly add items to stock workflows.', href: '/stock-control/add-item' },
   ]
 
   return (

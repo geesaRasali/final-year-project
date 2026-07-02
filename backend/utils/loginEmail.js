@@ -94,3 +94,43 @@ export const sendOrderSuccessEmail = async ({ name, email, orderId, amount }) =>
     throw new Error(error.message || "Resend failed to send order confirmation email");
   }
 };
+
+export const sendContactReplyEmail = async ({ name, email, originalMessage, reply }) => {
+  const to = (email || "").trim();
+  if (!to) {
+    throw new Error("Customer email is missing for contact reply");
+  }
+
+  const client = getResendClient();
+  if (!client) {
+    throw new Error("RESEND_API_KEY is not set");
+  }
+
+  const from = (process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev").trim();
+  const appName = (process.env.APP_NAME || "Urban Foods").trim();
+
+  const html = `
+    <div style="font-family: Arial, sans-serif; color: #111827; line-height: 1.6;">
+      <h2 style="margin: 0 0 12px; color: #ea580c;">Response to your inquiry</h2>
+      <p style="margin: 0 0 10px;">Hello ${name || "Customer"},</p>
+      <p style="margin: 0 0 10px;">We have received your message and have responded:</p>
+      <blockquote style="margin: 12px 0; padding: 8px 12px; border-left: 4px solid #ea580c; background-color: #f9fafb; font-style: italic;">
+        "${originalMessage}"
+      </blockquote>
+      <p style="margin: 12px 0 10px;"><strong>Our Response:</strong></p>
+      <p style="margin: 0 0 15px; font-weight: bold; color: #111827;">${reply}</p>
+      <p style="margin: 0;">Best regards,<br/>Urban Foods Team</p>
+    </div>
+  `;
+
+  const { error } = await client.emails.send({
+    from,
+    to: [to],
+    subject: `${appName} - Support Reply`,
+    html,
+  });
+
+  if (error) {
+    throw new Error(error.message || "Resend failed to send contact reply email");
+  }
+};

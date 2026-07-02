@@ -159,7 +159,7 @@ const StaffUsers = ({ url, adminToken }) => {
   };
 
   return (
-    <div className='grid gap-6 px-4 py-6 md:px-8'>
+    <div className='grid gap-6 px-4 py-6 md:px-8 font-sans'>
       <div className='rounded-3xl border border-orange-100 bg-linear-to-br from-white via-white to-orange-50/70 p-5 shadow-[0_18px_45px_rgba(0,0,0,0.08)] md:p-6 dark:border-orange-500/25 dark:bg-linear-to-br dark:from-zinc-950 dark:via-zinc-950 dark:to-zinc-900 dark:shadow-[0_18px_45px_rgba(0,0,0,0.5)]'>
         <div className='mb-5 flex flex-wrap items-start justify-between gap-4'>
           <div>

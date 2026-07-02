@@ -159,20 +159,28 @@ const listOrders = async (req, res) => {
 // Update order status
 const updateStatus = async (req, res) => {
   try {
-    const { orderId, status } = req.body;
+    const { orderId, status, kitchenStaff } = req.body;
 
-    if (!orderId || !status) {
-      return res.json({ success: false, message: "Order ID and status are required" });
+    if (!orderId) {
+      return res.json({ success: false, message: "Order ID is required" });
     }
 
     const role = req.user?.role;
     const normalizedRole = role === USER_ROLES.STAFF ? USER_ROLES.MANAGEMENT_STAFF : role;
 
-    if (normalizedRole === USER_ROLES.DELIVERY_STAFF && !DELIVERY_ALLOWED_STATUSES.includes(status)) {
+    if (status && normalizedRole === USER_ROLES.DELIVERY_STAFF && !DELIVERY_ALLOWED_STATUSES.includes(status)) {
       return res.json({ success: false, message: "Delivery staff can only set Out for delivery or Delivered" });
     }
 
-    await orderModel.findByIdAndUpdate(orderId, { status });
+    const updateObj = {};
+    if (status) updateObj.status = status;
+    if (kitchenStaff !== undefined) updateObj.kitchenStaff = kitchenStaff;
+
+    if (Object.keys(updateObj).length === 0) {
+      return res.json({ success: false, message: "Either status or kitchenStaff is required to update" });
+    }
+
+    await orderModel.findByIdAndUpdate(orderId, updateObj);
     res.json({ success: true, message: "Status Updated" });
   } catch (error) {
     console.log(error);

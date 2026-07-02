@@ -13,7 +13,7 @@ const Orders = ({ url, adminToken, adminUser }) => {
   const isDeliveryStaff = normalizedRole === ROLES.DELIVERY_STAFF;
   const statusOptions = isDeliveryStaff
     ? ['Out for delivery', 'Delivered']
-    : ['Food Processing', 'Out for delivery', 'Delivered'];
+    : ['Order Placed', 'Food Processing', 'Preparing', 'Ready for Delivery', 'Out for delivery', 'Delivered'];
 
   const fetchAllOrders = async () => {
     try {
@@ -48,13 +48,13 @@ const Orders = ({ url, adminToken, adminUser }) => {
         },
       });
       if (response.data.success) {
+        toast.success(response.data.message || 'Status updated');
         await fetchAllOrders();
-        toast.success('Status updated');
       } else {
-        toast.error(response.data?.message || 'Failed to update status');
+        toast.error('Failed to update status');
       }
     } catch (error) {
-      toast.error('Failed to update status');
+      toast.error('Error updating status');
     }
   };
 
@@ -65,6 +65,9 @@ const Orders = ({ url, adminToken, adminUser }) => {
   };
 
   const getStatusTone = (status = '') => {
+    if (status === 'Order Placed') {
+      return 'bg-zinc-150 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300';
+    }
     if (status === 'Delivered') {
       return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300';
     }
@@ -203,20 +206,30 @@ const Orders = ({ url, adminToken, adminUser }) => {
                     </span>
                   </div>
 
-                  <div className='md:pt-1'>
-                    <p className='mb-1 text-[11px] uppercase tracking-wide text-zinc-400'>Update Status</p>
-                    <select
-                      onChange={(event) => statusHandler(event, order._id)}
-                      value={order.status}
-                      className='w-full rounded-lg border border-zinc-300 bg-white px-2.5 py-2 text-xs font-semibold text-zinc-700 outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-100 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200'
-                    >
-                      {statusOptions.map((status) => (
-                        <option key={status} value={status} className='bg-white text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200'>
-                          {status}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                   <div className='md:pt-1'>
+                     <p className='mb-1 text-[11px] uppercase tracking-wide text-zinc-400'>Update Status</p>
+                     {order.status === 'Order Placed' && !isDeliveryStaff ? (
+                       <button
+                         type='button'
+                         onClick={() => statusHandler({ target: { value: 'Food Processing' } }, order._id)}
+                         className='w-full bg-orange-600 hover:bg-orange-700 text-white rounded-lg py-2 text-xs font-extrabold uppercase tracking-wider transition active:scale-[0.98] shadow-xs cursor-pointer shadow-orange-500/15'
+                       >
+                         Confirm & Send
+                       </button>
+                     ) : (
+                       <select
+                         onChange={(event) => statusHandler(event, order._id)}
+                         value={order.status}
+                         className='w-full rounded-lg border border-zinc-300 bg-white px-2.5 py-2 text-xs font-semibold text-zinc-700 outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-100 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200'
+                       >
+                         {statusOptions.map((status) => (
+                           <option key={status} value={status} className='bg-white text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200'>
+                             {status}
+                           </option>
+                         ))}
+                       </select>
+                     )}
+                   </div>
                 </div>
               </article>
             ))}

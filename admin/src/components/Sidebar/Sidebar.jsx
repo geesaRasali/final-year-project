@@ -22,11 +22,19 @@ import {
 import { hasPermission } from "../../config/rbac";
 import logo from "../../assets/logo.png";
 
-const Sidebar = ({ adminUser }) => {
+const Sidebar = ({ adminUser, pendingMessagesCount = 0 }) => {
   const location = useLocation();
   const role = adminUser?.role;
   const [isStockOpen, setIsStockOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isKitchenOpen, setIsKitchenOpen] = useState(false);
+
+  // Helper to determine if a kitchen submenu item is active based on pathname and tab search param
+  const isKitchenTabActive = (tabName) => {
+    if (location.pathname !== "/kitchen-monitoring") return false;
+    const currentTab = new URLSearchParams(location.search).get("tab") || "orders";
+    return currentTab === tabName;
+  };
 
   // Auto-expand Stock Control if we are on one of its subpages
   useEffect(() => {
@@ -43,6 +51,13 @@ const Sidebar = ({ adminUser }) => {
       location.pathname === "/categories"
     ) {
       setIsMenuOpen(true);
+    }
+  }, [location.pathname]);
+
+  // Auto-expand Kitchen Management if we are on one of its subpages
+  useEffect(() => {
+    if (location.pathname.startsWith("/kitchen-monitoring")) {
+      setIsKitchenOpen(true);
     }
   }, [location.pathname]);
 
@@ -229,6 +244,19 @@ const Sidebar = ({ adminUser }) => {
                         <span>Add Supplier</span>
                       </NavLink>
                       <NavLink
+                        to="/stock-control/add-item"
+                        className={({ isActive }) =>
+                          `flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                            isActive
+                              ? "bg-orange-50 text-orange-600 dark:bg-[#2a170c] dark:text-orange-400"
+                              : "text-zinc-550 hover:bg-orange-50/65 hover:text-orange-600 dark:text-[#a099b0]/80 dark:hover:bg-[#15121b]/80 dark:hover:text-white"
+                          }`
+                        }
+                      >
+                        <FiRepeat className="w-4 h-4 text-orange-500/80 dark:text-orange-400/80" />
+                        <span>Add Item</span>
+                      </NavLink>
+                      <NavLink
                         to="/stock-control/add-stock"
                         className={({ isActive }) =>
                           `flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
@@ -280,38 +308,77 @@ const Sidebar = ({ adminUser }) => {
                         <FiTruck className="w-4 h-4 text-orange-500/80 dark:text-orange-400/80" />
                         <span>Kitchen Transfer List</span>
                       </NavLink>
-                      <NavLink
-                        to="/stock-control/add-item"
-                        className={({ isActive }) =>
-                          `flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
-                            isActive
-                              ? "bg-orange-50 text-orange-600 dark:bg-[#2a170c] dark:text-orange-400"
-                              : "text-zinc-550 hover:bg-orange-50/65 hover:text-orange-600 dark:text-[#a099b0]/80 dark:hover:bg-[#15121b]/80 dark:hover:text-white"
-                          }`
-                        }
-                      >
-                        <FiRepeat className="w-4 h-4 text-orange-500/80 dark:text-orange-400/80" />
-                        <span>Add Item</span>
-                      </NavLink>
+                      
                     </div>
                   )}
                 </div>
               )}
 
               {showKitchenMonitoring && (
-                <NavLink
-                  to="/kitchen-monitoring"
-                  className={({ isActive }) =>
-                    `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
-                      isActive
-                        ? "bg-orange-50 text-orange-600 border-l-4 border-l-orange-500 pl-2 dark:bg-[#2a170c] dark:text-orange-400 dark:border-l-orange-500"
-                        : "text-zinc-600 hover:bg-orange-50/60 hover:text-orange-600 dark:text-[#a099b0] dark:hover:bg-[#15121b]/80 dark:hover:text-white"
-                    }`
-                  }
-                >
-                  <FiClock className="w-5 h-5 flex-shrink-0 text-orange-500 dark:text-orange-400" />
-                  <span>Kitchen Monitoring</span>
-                </NavLink>
+                <div className="space-y-0.5">
+                  <button
+                    onClick={() => setIsKitchenOpen((prev) => !prev)}
+                    className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-205 text-zinc-600 hover:bg-orange-50/60 hover:text-orange-600 dark:text-[#a099b0] dark:hover:bg-[#15121b]/80 dark:hover:text-white cursor-pointer ${
+                      isKitchenOpen ? "text-orange-600 bg-orange-50/30 dark:bg-transparent dark:text-orange-400 font-bold" : ""
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <FiClock className="w-5 h-5 flex-shrink-0 text-orange-500 dark:text-orange-400" />
+                      <span>Kitchen Management</span>
+                    </div>
+                    <FiChevronDown
+                      className={`w-4 h-4 transition-transform duration-200 ${
+                        isKitchenOpen ? "rotate-180" : ""
+                      }`}
+                    />
+                  </button>
+
+                  {isKitchenOpen && (
+                    <div className="pl-6 space-y-0.5 border-l border-orange-100 dark:border-[#1a1722] ml-5 mt-1 mb-1">
+                      <NavLink
+                        to="/kitchen-monitoring?tab=dashboard"
+                        className={() =>
+                          `flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                            isKitchenTabActive("dashboard")
+                              ? "bg-orange-50 text-orange-600 dark:bg-[#2a170c] dark:text-orange-400"
+                              : "text-zinc-550 hover:bg-orange-50/65 hover:text-orange-600 dark:text-[#a099b0]/80 dark:hover:bg-[#15121b]/80 dark:hover:text-white"
+                          }`
+                        }
+                      >
+                        <span className="text-sm">🏠</span>
+                        <span>Dashboard</span>
+                      </NavLink>
+
+                      <NavLink
+                        to="/kitchen-monitoring?tab=orders"
+                        className={() =>
+                          `flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                            isKitchenTabActive("orders")
+                              ? "bg-orange-50 text-orange-600 dark:bg-[#2a170c] dark:text-orange-400"
+                              : "text-zinc-550 hover:bg-orange-50/65 hover:text-orange-600 dark:text-[#a099b0]/80 dark:hover:bg-[#15121b]/80 dark:hover:text-white"
+                          }`
+                        }
+                      >
+                        <span className="text-sm">📋</span>
+                        <span>Kitchen Orders</span>
+                      </NavLink>
+
+                      <NavLink
+                        to="/kitchen-monitoring?tab=history"
+                        className={() =>
+                          `flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                            isKitchenTabActive("history")
+                              ? "bg-orange-50 text-orange-600 dark:bg-[#2a170c] dark:text-orange-400"
+                              : "text-zinc-550 hover:bg-orange-50/65 hover:text-orange-600 dark:text-[#a099b0]/80 dark:hover:bg-[#15121b]/80 dark:hover:text-white"
+                          }`
+                        }
+                      >
+                        <span className="text-sm">📜</span>
+                        <span>Order History</span>
+                      </NavLink>
+                    </div>
+                  )}
+                </div>
               )}
 
               {showDeliveryMonitoring && (
@@ -368,7 +435,12 @@ const Sidebar = ({ adminUser }) => {
                   }
                 >
                   <FiMail className="w-5 h-5 flex-shrink-0 text-orange-500 dark:text-orange-400" />
-                  <span>Customer Messages</span>
+                  <span className="flex-1">Customer Messages</span>
+                  {pendingMessagesCount > 0 && (
+                    <span className="bg-red-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full">
+                      {pendingMessagesCount}
+                    </span>
+                  )}
                 </NavLink>
               )}
 

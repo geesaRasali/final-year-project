@@ -1,5 +1,6 @@
 import validator from "validator";
 import contactModel from "../models/contactModel.js";
+import { sendContactReplyEmail } from "../utils/loginEmail.js";
 
 const clean = (value) => (value || "").trim();
 
@@ -60,4 +61,45 @@ const listContactMessages = async (_req, res) => {
 	}
 };
 
-export { submitContactMessage, listContactMessages };
+const replyContactMessage = async (req, res) => {
+	try {
+		const { messageId, reply } = req.body;
+		if (!messageId || !reply) {
+			return res.json({ success: false, message: "Message ID and reply are required" });
+		}
+
+		const messageObj = await contactModel.findById(messageId);
+		if (!messageObj) {
+			return res.json({ success: false, message: "Message not found" });
+		}
+
+		messageObj.reply = reply;
+		await messageObj.save();
+
+		let emailStatus = "skipped";
+		try {
+			await sendContactReplyEmail({
+				name: messageObj.name,
+				email: messageObj.email,
+				originalMessage: messageObj.message,
+				reply: reply,
+			});
+			emailStatus = "sent";
+		} catch (emailError) {
+			emailStatus = `error: ${emailError?.message || emailError}`;
+			console.error("Failed to send reply email:", emailError?.message || emailError);
+		}
+
+		return res.json({
+			success: true,
+			message: "Reply saved successfully",
+			emailStatus,
+			data: messageObj,
+		});
+	} catch (error) {
+		console.error("replyContactMessage error:", error);
+		return res.json({ success: false, message: "Error replying to message" });
+	}
+};
+
+export { submitContactMessage, listContactMessages, replyContactMessage };

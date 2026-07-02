@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Navbar from './components/Navbar/Navbar';
 import Sidebar from './components/Sidebar/Sidebar';
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import Add from './pages/Add/Add';
 import List from './pages/List/List';
 import StockControl from './pages/Stock Control/Stock Control';
@@ -33,6 +34,21 @@ const App = () => {
     }
     return window.matchMedia('(prefers-color-scheme: dark)').matches;
   });
+  const [messages, setMessages] = useState([]);
+
+  const fetchMessagesCount = async () => {
+    if (!url || !adminToken) return;
+    try {
+      const response = await axios.get(`${url}/api/contact/list`, {
+        headers: { token: adminToken, Authorization: `Bearer ${adminToken}` },
+      });
+      if (response.data?.success) {
+        setMessages(response.data.data || []);
+      }
+    } catch (error) {
+      console.error('Failed to fetch contact messages count:', error);
+    }
+  };
 
   useEffect(() => {
     const savedToken = localStorage.getItem('adminToken');
@@ -61,6 +77,14 @@ const App = () => {
     root.classList.toggle('dark', isDarkMode);
     localStorage.setItem('adminTheme', isDarkMode ? 'dark' : 'light');
   }, [isDarkMode]);
+
+  useEffect(() => {
+    if (adminToken) {
+      fetchMessagesCount();
+      const interval = setInterval(fetchMessagesCount, 30000);
+      return () => clearInterval(interval);
+    }
+  }, [url, adminToken]);
 
   const getDefaultRouteForRole = (role) => {
     if (hasPermission(role, 'dashboard')) return '/';
@@ -122,7 +146,7 @@ const App = () => {
   const defaultRoute = getDefaultRouteForRole(adminUser?.role);
 
   return (
-    <div className="min-h-screen bg-zinc-50 pt-16 transition-colors dark:bg-zinc-900">
+    <div className="min-h-screen bg-zinc-50 pt-16 transition-colors dark:bg-zinc-900 font-sans">
       <ToastContainer />
       <Navbar
         adminUser={adminUser}
@@ -131,7 +155,10 @@ const App = () => {
         onToggleDarkMode={() => setIsDarkMode((prev) => !prev)}
       />
       <div className="flex">
-        <Sidebar adminUser={adminUser} />
+        <Sidebar
+          adminUser={adminUser}
+          pendingMessagesCount={messages.filter((m) => !m.reply || m.reply.trim() === '').length}
+        />
         <div className="min-w-0 flex-1 ml-[18%]">
           <Routes>
             <Route path="/" element={canViewDashboard ? <Dashboard url={url} adminToken={adminToken} adminUser={adminUser} /> : <Navigate to={defaultRoute} replace />} />
@@ -140,7 +167,7 @@ const App = () => {
             <Route path="/categories" element={canViewCategories ? <Categories /> : <Navigate to={defaultRoute} replace />} />
             <Route path="/stock-control/*" element={canViewStockControl ? <StockControl url={url} adminToken={adminToken} /> : <Navigate to={defaultRoute} replace />} />
             <Route path="/supplier-management" element={canViewSupplierManagement ? <SupplierManagement /> : <Navigate to={defaultRoute} replace />} />
-            <Route path="/kitchen-monitoring" element={canViewKitchenMonitoring ? <KitchenMonitoring /> : <Navigate to={defaultRoute} replace />} />
+            <Route path="/kitchen-monitoring" element={canViewKitchenMonitoring ? <KitchenMonitoring url={url} adminToken={adminToken} adminUser={adminUser} /> : <Navigate to={defaultRoute} replace />} />
             <Route path="/delivery-monitoring" element={canViewDeliveryMonitoring ? <DeliveryMonitoring /> : <Navigate to={defaultRoute} replace />} />
             <Route path="/orders" element={canManageOrders ? <Orders url={url} adminToken={adminToken} adminUser={adminUser} /> : <Navigate to={defaultRoute} replace />} />
             <Route path="/admin/messages" element={canViewMessages ? <Messages url={url} adminToken={adminToken} /> : <Navigate to={defaultRoute} replace />} />
